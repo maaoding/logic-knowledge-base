@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="按逻辑学分支完成三道练习，立即查看解析并返回知识库复习。" />
+    <meta name="color-scheme" content="light dark" />
+    <title>逻辑学分支练习</title>
+    <script>
+      (() => {
+        const saved = localStorage.getItem("logicPractice.theme");
+        const theme = saved === "light" || saved === "dark"
+          ? saved
+          : matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        document.documentElement.dataset.theme = theme;
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
