@@ -84,12 +84,11 @@ test("returns the custom 404 for unknown knowledge routes", async () => {
 });
 
 test("keeps the workspace local-only and exposes both application commands", async () => {
-  const [layout, page, packageJsonText, practicePackageText, hosting] = await Promise.all([
+  const [layout, page, packageJsonText, practicePackageText] = await Promise.all([
     readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../package.json", import.meta.url), "utf8"),
     readFile(new URL("../apps/practice/package.json", import.meta.url), "utf8"),
-    readFile(new URL("../.openai/hosting.json", import.meta.url), "utf8"),
   ]);
 
   const packageJson = JSON.parse(packageJsonText);
@@ -101,6 +100,5 @@ test("keeps the workspace local-only and exposes both application commands", asy
     assert.equal(typeof packageJson.scripts[script], "string", script);
   }
   assert.equal(practicePackage.name, "@logic/practice");
-  assert.deepEqual(JSON.parse(hosting), { d1: null, r2: null });
   await assert.rejects(access(new URL("../app/_sites-preview", import.meta.url)));
 });

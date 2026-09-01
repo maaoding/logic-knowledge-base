@@ -32,4 +32,4 @@ npm run test:all
 主站默认运行在 `http://localhost:3000`，练习站默认运行在 `http://localhost:3001`。可用 `NEXT_PUBLIC_PRACTICE_SITE_URL` 和 `VITE_KNOWLEDGE_BASE_URL` 覆盖双向地址。
 如需为社交预览生成绝对地址，可用 `NEXT_PUBLIC_SITE_URL` 指定主站的可信来源；本地默认使用 `http://localhost:3000/`。
 
-构建和测试使用 Node.js 22.13 或更高版本。`.openai/hosting.json` 继续保持 D1、R2 为空；仓库不包含发布、账号、统计或持久化进度配置。
+构建和测试使用 Node.js 22.13 或更高版本；仓库不包含发布、账号、统计或持久化进度配置。
