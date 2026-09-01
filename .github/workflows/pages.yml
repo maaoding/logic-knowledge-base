@@ -31,24 +31,28 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Configure Pages
+        id: pages
+        uses: actions/configure-pages@v6
+
       - name: Build knowledge base
         run: npm run build
         env:
           GITHUB_PAGES: "true"
-          NEXT_PUBLIC_SITE_URL: https://maaoding.github.io/logic-knowledge-base/
-          NEXT_PUBLIC_PRACTICE_SITE_URL: https://maaoding.github.io/logic-knowledge-base/practice/
+          GITHUB_PAGES_BASE_PATH: ${{ steps.pages.outputs.base_path }}
+          NEXT_PUBLIC_SITE_URL: ${{ steps.pages.outputs.base_url }}/
+          NEXT_PUBLIC_PRACTICE_SITE_URL: ${{ steps.pages.outputs.base_url }}/practice/
 
       - name: Build practice site
         run: npm run build:practice
         env:
           GITHUB_PAGES: "true"
-          VITE_KNOWLEDGE_BASE_URL: https://maaoding.github.io/logic-knowledge-base/
+          VITE_KNOWLEDGE_BASE_URL: ${{ steps.pages.outputs.base_url }}/
 
       - name: Prepare Pages artifact
         run: npm run prepare:pages
-
-      - name: Configure Pages
-        uses: actions/configure-pages@v6
+        env:
+          GITHUB_PAGES_BASE_PATH: ${{ steps.pages.outputs.base_path }}
 
       - name: Upload website
         uses: actions/upload-pages-artifact@v5
