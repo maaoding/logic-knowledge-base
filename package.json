@@ -15,6 +15,7 @@
     "dev:all": "concurrently --kill-others-on-fail --names knowledge,practice \"npm run dev\" \"npm run dev:practice\"",
     "build": "vinext build",
     "build:practice": "npm run build --workspace @logic/practice",
+    "prepare:pages": "node scripts/prepare-github-pages.mjs",
     "build:all": "npm run build && npm run build:practice",
     "start": "vinext start",
     "test": "npm run build && npm run test:built",
