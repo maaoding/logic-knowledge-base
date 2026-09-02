@@ -66,8 +66,8 @@ export default async function BranchPage({ params }: Props) {
       <section className="branch-practice" aria-labelledby="branch-practice-title">
         <div>
           <p className="eyebrow">分支练习</p>
-          <h2 id="branch-practice-title">用三道题检验理解</h2>
-          <p>答案只保留在本次页面会话中，完成后可逐题返回对应知识条目。</p>
+          <h2 id="branch-practice-title">完成本分支练习，检验理解</h2>
+          <p>答题进度只保存在当前浏览器本地，完成后可逐题返回对应知识条目。</p>
         </div>
         <a href={practiceSiteUrl(branch.id)}>练习本分支</a>
       </section>

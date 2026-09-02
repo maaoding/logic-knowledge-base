@@ -4,7 +4,7 @@ import { getEntry, learningPaths } from "../../lib/catalog";
 
 export const metadata: Metadata = {
   title: "学习路径",
-  description: "三条面向不同学习目标的逻辑学入门路径。",
+  description: `${learningPaths.length} 条面向不同学习目标的逻辑学入门路径。`,
 };
 
 export default function PathsPage() {
@@ -12,7 +12,7 @@ export default function PathsPage() {
     <main id="main-content" className="page-shell shell">
       <header className="page-header">
         <p className="eyebrow">按目标学习</p>
-        <h1>三条路径，把分散条目连成一次学习</h1>
+        <h1>{learningPaths.length} 条路径，把分散条目连成一次学习</h1>
         <p>每条路径按起点、核心、延伸与整合四个阶段组织。先完成一条，再决定是否进入更形式化或更现实的问题。</p>
       </header>
       <div className="paths-index">

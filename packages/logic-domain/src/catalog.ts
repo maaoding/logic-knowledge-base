@@ -45,6 +45,10 @@ export const entryManifest: EntryManifest[] = [
   { slug: "ambiguity-and-definition", kind: "concepts", branchId: "informal", title: "歧义、定义与语境", aliases: ["语义歧义", "ambiguity", "definition"], summary: "同一词句可能有不同解释；明确语境和定义是判断论证是否成立的前提。", tags: ["歧义", "定义", "语境"] },
   { slug: "burden-of-proof", kind: "concepts", branchId: "informal", title: "举证责任与宽容原则", aliases: ["举证责任", "charity principle", "burden of proof"], summary: "主张者需要提供与主张强度相称的理由，分析者则应先给对方论证以合理的强解释。", tags: ["举证责任", "宽容原则", "对话"] },
   { slug: "affirming-the-consequent", kind: "fallacies", branchId: "informal", title: "肯定后件", aliases: ["肯定结果", "affirming the consequent"], summary: "从“若 P 则 Q”和 Q 推出 P；它忽略了 Q 可能由其他原因造成。", tags: ["形式谬误", "条件句", "反例"] },
+  { slug: "straw-man", kind: "fallacies", branchId: "informal", title: "稻草人谬误", aliases: ["歪曲论证", "straw man"], summary: "把对方立场改写成更弱、更极端或更容易攻击的版本，再把击败替身冒充为回应原论证。", tags: ["非形式谬误", "忠实重构", "立场歪曲"] },
+  { slug: "ad-hominem", kind: "fallacies", branchId: "informal", title: "诉诸人身", aliases: ["人身攻击", "ad hominem"], summary: "用说话者的身份、品格或处境替代对其理由的评价；来源信息只有在影响证据可信度时才相关。", tags: ["非形式谬误", "相关性", "来源可信度"] },
+  { slug: "false-dilemma", kind: "fallacies", branchId: "informal", title: "错误二分法", aliases: ["假两难", "非此即彼", "false dilemma"], summary: "把并未穷尽的少数选项说成全部可能，使读者在被人为压缩的选择中作答。", tags: ["非形式谬误", "选项穷尽", "假两难"] },
+  { slug: "causal-misreasoning", kind: "fallacies", branchId: "informal", title: "因果归因误判", aliases: ["错误因果", "相关不等于因果", "false cause"], summary: "仅凭相关或时间先后断定因果，忽略混杂因素、反向因果与共同原因。", tags: ["非形式谬误", "因果推断", "相关性"] },
 
   { slug: "proof-and-derivability", kind: "concepts", branchId: "mathematical", title: "形式证明与可推导性", aliases: ["形式推导", "derivability", "proof"], summary: "形式证明是在明确公理和规则下构造的有限符号序列，可推导性记录这种语法关系。", tags: ["证明论", "可推导性", "形式系统"] },
   { slug: "soundness-completeness", kind: "concepts", branchId: "mathematical", title: "可靠性与完全性", aliases: ["健全性与完备性", "soundness and completeness"], summary: "可靠性保证可证明的式子在语义上成立；完全性保证语义后承能够被系统证明。", tags: ["证明论", "模型论", "元逻辑"] },

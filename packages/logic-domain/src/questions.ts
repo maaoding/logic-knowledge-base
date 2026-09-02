@@ -391,6 +391,54 @@ export const practiceQuestions: PracticeQuestion[] = [
     correctOptionIds: ["a", "c"],
     explanation: "甲句的结构允许两种合法读法，属于句法歧义，处理动作是列全读法并找语境线索固定——固定之前，基于任何单一读法的推断都应悬置，a 正确而 d 违反这一点。乙句是“成熟”这类边界不明的词：含义并不分裂，分歧出在灰区，靠设定阈值与测量方式推进，列出含义解决不了问题，b 混淆了歧义与模糊，也高估了灰区分歧消失的可能。",
   },
+  {
+    id: "informal-6", branchId: "informal", entrySlug: "straw-man", kind: "single",
+    prompt: "甲建议“在两个班试行一月无纸化作业，再比较学习效果”。乙回应：“让全校永远取消纸笔会伤害视力，所以甲的建议错误。”最准确的评价是什么？",
+    options: [
+      { id: "a", text: "乙已反驳甲，因为任何无纸化安排都等于永久取消纸笔" },
+      { id: "b", text: "乙构造了稻草人：把小范围、限时试行改成全校永久取消，再攻击被改写的方案" },
+      { id: "c", text: "甲一定正确，因为试行方案不会产生任何风险" },
+      { id: "d", text: "双方只是在表达个人偏好，不存在可评价的论证" },
+    ],
+    correctOptionIds: ["b"],
+    explanation: "甲的范围是两个班，期限是一月，目标是比较效果；乙同时扩大范围、删除期限并把试行改成永久政策，b 正确。a 把两种承诺强度混同；c 从乙的反驳没有命中跳到甲必然正确，仍需评价试行风险与指标；d 忽略了双方可明确重构的前提和结论。",
+  },
+  {
+    id: "informal-7", branchId: "informal", entrySlug: "ad-hominem", kind: "single",
+    prompt: "居民指出公开预算中两行金额和合同编号相同。负责人说：“你不是会计，所以这个重复计算的质疑必定错误。”应怎样回应？",
+    options: [
+      { id: "a", text: "负责人正确，只有会计提出的事实才可能为真" },
+      { id: "b", text: "居民身份完全不能在任何论证中成为相关信息" },
+      { id: "c", text: "应核对两行是否对应同一支出；学历不能替代内容检查，专业资格至多影响复杂判断的初始权重" },
+      { id: "d", text: "既然负责人诉诸人身，居民关于重复计算的结论就已被证明" },
+    ],
+    correctOptionIds: ["c"],
+    explanation: "合同编号与金额是否重复可直接核对，c 同时保留了来源信息在其他场景中的有限作用。a 把资格变成真值条件；b 又走向另一极端，证言、专业判断和利益冲突中来源可能相关；d 只说明当前反驳失败，不能替居民完成事实证明。",
+  },
+  {
+    id: "informal-8", branchId: "informal", entrySlug: "false-dilemma", kind: "multiple",
+    prompt: "有人说：“学校要么全面禁带手机，要么接受课堂随意使用。”以下哪些动作能正确检验并修复这个二分？",
+    options: [
+      { id: "a", text: "检查两个选项在当前规则下是否互斥且穷尽" },
+      { id: "b", text: "提出上课统一收纳、教学授权使用或分阶段试行，并分别检查可行性" },
+      { id: "c", text: "只要找到第三个选项，就直接宣布它是最佳政策" },
+      { id: "d", text: "补全选项后，用课堂干扰、执行成本和紧急联系等共同标准比较" },
+    ],
+    correctOptionIds: ["a", "b", "d"],
+    explanation: "a 检查二分成立所需的互斥与穷尽，b 系统寻找范围、用途和时间上的遗漏方案，d 回到同一标准作决策，因此正确。c 只反驳原列表的穷尽性，却没有给第三方案提供胜过其他方案的证据。",
+  },
+  {
+    id: "informal-9", branchId: "informal", entrySlug: "causal-misreasoning", kind: "single",
+    prompt: "学习 App 发现连续打卡者平均成绩更高，便声称“打卡功能造成了成绩提升”。哪项是最关键的进一步检查？",
+    options: [
+      { id: "a", text: "把相关性数字重复展示得更醒目" },
+      { id: "b", text: "比较打卡前基础与其他投入，并用可比对照检查自律程度、反向因果和选择偏差" },
+      { id: "c", text: "因为相关不等于因果，所以立即断定打卡毫无效果" },
+      { id: "d", text: "只确认打卡发生在期末考试之前，便可排除所有替代解释" },
+    ],
+    correctOptionIds: ["b"],
+    explanation: "b 直接针对共同原因、反向路径和选择机制，并寻找可区分解释的证据。a 不增加证据；c 把“尚未证明”误成“已经证明无效”；d 的时间顺序只是必要线索，无法排除组间既有差异、同期辅导或测量变化。",
+  },
 
   {
     id: "mathematical-1", branchId: "mathematical", entrySlug: "proof-and-derivability", kind: "single",

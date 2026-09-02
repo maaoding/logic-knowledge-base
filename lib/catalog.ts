@@ -128,6 +128,25 @@ export const learningPaths: LearningPath[] = [
       { entrySlug: "affirming-the-consequent", stage: "整合", goal: "用替代解释识别条件推理错误" },
     ],
   },
+  {
+    slug: "real-arguments-and-fallacies",
+    title: "现实论证与常见误区",
+    level: "入门",
+    summary: "从忠实重构开始，辨认现实讨论中常见的立场歪曲、无关攻击、选项压缩与因果误判。",
+    foundationSlugs: [],
+    steps: [
+      { entrySlug: "argument-structure", stage: "起点", goal: "先还原对方实际提出的前提与结论" },
+      { entrySlug: "deduction-and-induction", stage: "核心", goal: "分清必然推出与程度支持" },
+      { entrySlug: "argument-mapping", stage: "核心", goal: "标出理由、反驳、隐含前提与中间结论" },
+      { entrySlug: "burden-of-proof", stage: "核心", goal: "分配举证责任并保持重构忠实" },
+      { entrySlug: "ambiguity-and-definition", stage: "延伸", goal: "固定关键词含义与选择边界" },
+      { entrySlug: "straw-man", stage: "延伸", goal: "比较原主张与被攻击版本是否一致" },
+      { entrySlug: "ad-hominem", stage: "延伸", goal: "区分论证评价与相关的来源核查" },
+      { entrySlug: "false-dilemma", stage: "延伸", goal: "检查列出的选项是否真正穷尽可能" },
+      { entrySlug: "inductive-strength", stage: "整合", goal: "按证据强度评价现实结论" },
+      { entrySlug: "causal-misreasoning", stage: "整合", goal: "用替代解释与对照检查因果主张" },
+    ],
+  },
 ];
 
 const resourceItemCount = resourceGroups.reduce((total, group) => total + group.items.length, 0);
@@ -309,8 +328,8 @@ function validateFormula(formula: Formula, owner: string) {
 function assertCatalogIntegrity() {
   if (contentRecords.length !== entryManifest.length) throw new Error(`Expected ${entryManifest.length} content records, found ${contentRecords.length}.`);
   if (contentBySlug.size !== contentRecords.length) throw new Error("Content slugs must be unique.");
-  if (knowledgeEntries.length !== 36) throw new Error(`Expected 36 knowledge entries, found ${knowledgeEntries.length}.`);
-  if (learningPaths.length !== 3) throw new Error(`Expected 3 learning paths, found ${learningPaths.length}.`);
+  if (knowledgeEntries.length !== 40) throw new Error(`Expected 40 knowledge entries, found ${knowledgeEntries.length}.`);
+  if (learningPaths.length !== 4) throw new Error(`Expected 4 learning paths, found ${learningPaths.length}.`);
   if (new Set(searchIndex.map((record) => record.slug)).size !== searchIndex.length) throw new Error("Search record slugs must be unique.");
 
   for (const content of contentRecords) {
@@ -328,7 +347,7 @@ function assertCatalogIntegrity() {
     }
   }
 
-  const expectedPathLengths = [8, 9, 9];
+  const expectedPathLengths = [8, 9, 9, 10];
   const pathSlugs = new Set<string>();
   for (const [pathIndex, path] of learningPaths.entries()) {
     if (pathSlugs.has(path.slug)) throw new Error(`Duplicate learning path slug: ${path.slug}`);

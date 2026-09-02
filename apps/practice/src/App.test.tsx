@@ -94,4 +94,23 @@ describe("practice application", () => {
     expect(fourthRender.container.querySelector(`div[aria-label="第 1 题，共 ${questions.length} 题"]`)).toBeTruthy();
     expect(screen.getByRole("button", { name: "提交答案" })).toHaveProperty("disabled", true);
   });
+
+  it("keeps earlier informal progress when new questions are appended", () => {
+    const questions = getQuestionsByBranch("informal");
+    expect(questions).toHaveLength(9);
+    localStorage.setItem("logicPractice.progress", JSON.stringify({
+      informal: questions.slice(0, 5).map((question) => ({
+        questionId: question.id,
+        selectedIds: [...question.correctOptionIds],
+        correct: true,
+      })),
+    }));
+    setLocation("?branch=informal");
+
+    const { container } = render(<App />);
+
+    expect(container.querySelector('div[aria-label="第 6 题，共 9 题"]')).toBeTruthy();
+    expect(screen.getByText(questions[5].prompt)).toBeTruthy();
+    expect(container.querySelector(".result-score")).toBeNull();
+  });
 });

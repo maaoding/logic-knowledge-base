@@ -27,7 +27,7 @@ test("server-renders the finished homepage", async () => {
   assert.match(html, /<title>逻辑学知识库<\/title>/i);
   assert.match(html, /为零基础读者展开一张逻辑地图/);
   assert.match(html, /学科地图/);
-  assert.match(html, /36 个知识条目/);
+  assert.match(html, /40(?:\s|<!-- -->)*个知识条目/);
   assert.match(html, /进入分支练习站/);
   assert.match(html, /搜索逻辑学知识/);
   assert.match(html, /property="og:image" content="http:\/\/localhost:3000\/og.png"/);
@@ -42,13 +42,15 @@ test("serves a complete sitemap and project-managed robots rules", async () => {
 
   const sitemapXml = await sitemapResponse.text();
   const urls = [...sitemapXml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1]);
-  assert.equal(urls.length, 57);
-  assert.equal(new Set(urls).size, 57);
+  assert.equal(urls.length, 62);
+  assert.equal(new Set(urls).size, 62);
   for (const url of [
     "http://localhost:3000/",
     "http://localhost:3000/branches/foundations",
     "http://localhost:3000/concepts/argument-structure",
     "http://localhost:3000/paths/argument-to-validity",
+    "http://localhost:3000/fallacies/straw-man",
+    "http://localhost:3000/paths/real-arguments-and-fallacies",
     "http://localhost:3000/resources",
     "http://localhost:3001/",
   ]) {
@@ -100,7 +102,7 @@ test("publishes favicon and Apple touch icon metadata with valid assets", async 
   assert.deepEqual(icoSizes, [[16, 16], [32, 32], [48, 48]]);
 });
 
-test("renders all branches, all 36 entry routes, and all learning paths", async () => {
+test("renders all branches, all 40 entry routes, and all learning paths", async () => {
   const branchIds = [
     "foundations", "traditional", "propositional", "predicate", "modal",
     "inductive", "informal", "mathematical", "philosophical", "history",
@@ -118,7 +120,7 @@ test("renders all branches, all 36 entry routes, and all learning paths", async 
     }
   }
 
-  assert.equal(entryRoutes.size, 36);
+  assert.equal(entryRoutes.size, 40);
   for (const route of entryRoutes) {
     const response = await render(route);
     assert.equal(response.status, 200, route);
@@ -127,6 +129,7 @@ test("renders all branches, all 36 entry routes, and all learning paths", async 
   const otherRoutes = [
     "/start", "/paths", "/paths/argument-to-validity",
     "/paths/proposition-to-quantifier", "/paths/induction-and-real-arguments",
+    "/paths/real-arguments-and-fallacies",
   ];
   for (const route of otherRoutes) {
     const response = await render(route);

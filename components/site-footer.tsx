@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { practiceQuestions } from "@logic/domain";
+import { knowledgeEntries } from "../lib/catalog";
 import { practiceSiteUrl } from "../lib/site-links";
 
 export function SiteFooter() {
@@ -16,7 +18,7 @@ export function SiteFooter() {
           <Link href="/branches/history">逻辑学史</Link>
           <a href={practiceSiteUrl()}>分支练习站</a>
         </nav>
-        <p className="footer-note">36 个知识条目与 46 道分支练习均在本地运行，不收集答题数据。</p>
+        <p className="footer-note">{knowledgeEntries.length} 个知识条目与 {practiceQuestions.length} 道分支练习均在本地运行，不收集答题数据。</p>
       </div>
     </footer>
   );

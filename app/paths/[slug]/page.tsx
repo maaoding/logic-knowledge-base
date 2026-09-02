@@ -63,7 +63,7 @@ export default async function LearningPathPage({ params }: Props) {
       </ol>
       <section className="practice-invite" aria-label="完成路径后的练习建议">
         <strong>完成路径后，回到分支检验。</strong>
-        <p>练习站不记录进度；你可以选择路径涉及的任一分支完成三道题，并从解析返回知识条目。</p>
+        <p>你可以选择路径涉及的任一分支完成对应练习；进度只保存在当前浏览器本地，并可从解析返回知识条目。</p>
         <a href={practiceSiteUrl()}>选择练习分支</a>
       </section>
     </main>

@@ -3,7 +3,7 @@ import { practiceQuestions } from "./questions";
 
 function assertDomainIntegrity() {
   if (branches.length !== 10) throw new Error(`Expected 10 branches, found ${branches.length}.`);
-  if (entryManifest.length !== 36) throw new Error(`Expected 36 entries, found ${entryManifest.length}.`);
+  if (entryManifest.length !== 40) throw new Error(`Expected 40 entries, found ${entryManifest.length}.`);
   const expectedQuestionTotal = entryManifest.length + branches.length;
   if (practiceQuestions.length !== expectedQuestionTotal) {
     throw new Error(`Expected ${expectedQuestionTotal} questions, found ${practiceQuestions.length}.`);

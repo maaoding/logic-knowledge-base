@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { practiceQuestions } from "@logic/domain";
 import {
   branches,
   entryPath,
@@ -19,7 +20,7 @@ export default function Home() {
     <main id="main-content">
       <section className="home-hero shell" aria-labelledby="home-title">
         <div className="hero-copy">
-          <p className="knowledge-label">36 个知识条目 · 46 道分支练习</p>
+          <p className="knowledge-label">{knowledgeEntries.length} 个知识条目 · {practiceQuestions.length} 道分支练习</p>
           <p className="eyebrow">从论证到证明</p>
           <h1 id="home-title">为零基础读者展开一张逻辑地图</h1>
           <p className="hero-lead">
@@ -27,7 +28,7 @@ export default function Home() {
           </p>
           <div className="hero-actions">
             <Link className="primary-action" href="/start">从这里开始</Link>
-            <Link className="text-action" href="/paths">查看三条学习路径</Link>
+            <Link className="text-action" href="/paths">查看 {learningPaths.length} 条学习路径</Link>
           </div>
         </div>
 

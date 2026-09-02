@@ -50,6 +50,10 @@ test("renders argument analysis cases with lenses and open questions", async () 
   assert.match(html, /继续追问/);
   assert.match(html, /九成用户都满意/);
   assert.match(html, /检测准确率 99%/);
+  assert.match(html, /延长两小时，就是要求全年不闭馆/);
+  assert.match(html, /你没学过财务，预算就轮不到你质疑/);
+  assert.match(html, /不全面禁手机，课堂就只能失控/);
+  assert.match(html, /打卡用户成绩高，所以打卡让人成绩提高/);
 });
 
 test("renders grouped learning resources with external links", async () => {
@@ -81,7 +85,7 @@ test("integrates the reference sections into navigation and the homepage", async
   for (const href of ["/glossary", "/comparisons", "/cases", "/resources"]) {
     assert.match(html, new RegExp(`href="${href}"`), href);
   }
-  assert.match(html, /搜索覆盖(?:\s|<!-- -->)*120(?:\s|<!-- -->)*项本地内容/);
+  assert.match(html, /搜索覆盖(?:\s|<!-- -->)*128(?:\s|<!-- -->)*项本地内容/);
 });
 
 test("explains the four learning stages without misstating path length", async () => {
@@ -117,4 +121,22 @@ test("keeps corrected logic distinctions visible in reader-facing pages", async 
   assert.match(await squareResponse.text(), /A 真无条件只推出其矛盾命题 O 假/);
   assert.match(await modalResponse.text(), /自反性保证 P→◇P，却不保证 ◇P→P/);
   assert.match(await relevanceResponse.text(), /P→\(Q→P\) 的外层前件 P 与外层后件 Q→P 实际共享 P/);
+});
+
+test("keeps the boundaries of the four new fallacy entries visible", async () => {
+  const [strawManResponse, adHominemResponse, dilemmaResponse, causalResponse] = await Promise.all([
+    render("/fallacies/straw-man"),
+    render("/fallacies/ad-hominem"),
+    render("/fallacies/false-dilemma"),
+    render("/fallacies/causal-misreasoning"),
+  ]);
+
+  for (const response of [strawManResponse, adHominemResponse, dilemmaResponse, causalResponse]) {
+    assert.equal(response.status, 200);
+  }
+
+  assert.match(await strawManResponse.text(), /指出稻草人后，原主张就自动成立/);
+  assert.match(await adHominemResponse.text(), /来源信息有时确实相关/);
+  assert.match(await dilemmaResponse.text(), /真实两难并不是谬误/);
+  assert.match(await causalResponse.text(), /相关是发现和检验因果假设的重要起点/);
 });

@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 describe("shared practice domain", () => {
   it("contains the agreed catalog and question counts", () => {
     expect(branches).toHaveLength(10);
-    expect(entryManifest).toHaveLength(36);
+    expect(entryManifest).toHaveLength(40);
     expect(practiceQuestions).toHaveLength(entryManifest.length + branches.length);
   });
 
