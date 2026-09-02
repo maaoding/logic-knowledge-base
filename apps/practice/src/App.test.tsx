@@ -55,29 +55,43 @@ describe("practice application", () => {
     expect(screen.getByRole("link", { name: "回知识库阅读对应条目" })).toBeTruthy();
   });
 
-  it("finishes a full branch question set, reviews it, and restarts without persisted answers", () => {
+  it("persists answers locally, restores them on reopen, and clears on restart", () => {
     const branch = branches[1];
     const questions = getQuestionsByBranch(branch.id);
     setLocation(`?branch=${branch.id}`);
     const firstRender = render(<App />);
 
-    for (const [index, question] of questions.entries()) {
-      for (const optionId of question.correctOptionIds) selectOption(firstRender.container, optionId);
-      fireEvent.click(screen.getByRole("button", { name: "提交答案" }));
-      fireEvent.click(screen.getByRole("button", { name: index === questions.length - 1 ? "查看本次结果" : "下一题" }));
-    }
-
-    expect(screen.getByText(`/ ${questions.length}`)).toBeTruthy();
-    expect(screen.getAllByRole("link", { name: "阅读对应知识条目" })).toHaveLength(questions.length);
-    fireEvent.click(screen.getByRole("button", { name: "重新练习本分支" }));
-    expect(screen.getByRole("button", { name: "提交答案" })).toHaveProperty("disabled", true);
-
+    // 答第一题后离开页面
     selectOption(firstRender.container, questions[0].correctOptionIds[0]);
     fireEvent.click(screen.getByRole("button", { name: "提交答案" }));
-    expect(screen.getByRole("status")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "下一题" }));
     firstRender.unmount();
-    render(<App />);
+
+    // 重新打开：应恢复到第二题
+    const secondRender = render(<App />);
+    expect(secondRender.container.querySelector(`div[aria-label="第 2 题，共 ${questions.length} 题"]`)).toBeTruthy();
     expect(screen.queryByRole("status")).toBeNull();
+
+    // 完成剩余题目后进入结果页
+    for (const [offset, question] of questions.slice(1).entries()) {
+      for (const optionId of question.correctOptionIds) selectOption(secondRender.container, optionId);
+      fireEvent.click(screen.getByRole("button", { name: "提交答案" }));
+      fireEvent.click(screen.getByRole("button", { name: offset === questions.length - 2 ? "查看本次结果" : "下一题" }));
+    }
+    expect(screen.getByText(`/ ${questions.length}`)).toBeTruthy();
+    expect(screen.getAllByRole("link", { name: "阅读对应知识条目" })).toHaveLength(questions.length);
+    secondRender.unmount();
+
+    // 完成状态同样被恢复
+    const thirdRender = render(<App />);
+    expect(thirdRender.container.querySelector(".result-score")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "重新练习本分支" }));
+    thirdRender.unmount();
+
+    // 重新练习已清空本地进度
+    const fourthRender = render(<App />);
+    expect(fourthRender.container.querySelector(".result-score")).toBeNull();
+    expect(fourthRender.container.querySelector(`div[aria-label="第 1 题，共 ${questions.length} 题"]`)).toBeTruthy();
     expect(screen.getByRole("button", { name: "提交答案" })).toHaveProperty("disabled", true);
   });
 });

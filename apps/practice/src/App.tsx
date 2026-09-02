@@ -6,6 +6,40 @@ type Theme = "light" | "dark";
 
 const knowledgeBaseOrigin = import.meta.env.VITE_KNOWLEDGE_BASE_URL ?? "http://localhost:3000/";
 
+const PROGRESS_KEY = "logicPractice.progress";
+
+function readStoredAnswers(): Record<string, AnswerRecord[]> {
+  try {
+    const raw = localStorage.getItem(PROGRESS_KEY);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === "object" ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+function loadBranchProgress(branchId: string, questions: PracticeQuestion[]): AnswerRecord[] {
+  const stored = readStoredAnswers()[branchId];
+  if (!Array.isArray(stored)) return [];
+  // 题库更新后旧记录的题目顺序可能失配，失配即整体作废
+  const matchesCurrentQuestions = stored.every(
+    (record, index) => record && record.questionId === questions[index]?.id,
+  );
+  return matchesCurrentQuestions && stored.length > 0 ? stored : [];
+}
+
+function saveBranchProgress(branchId: string, answers: AnswerRecord[]) {
+  try {
+    const all = readStoredAnswers();
+    if (answers.length === 0) delete all[branchId];
+    else all[branchId] = answers;
+    localStorage.setItem(PROGRESS_KEY, JSON.stringify(all));
+  } catch {
+    // 本地存储不可用（如隐私模式）时仅放弃持久化，答题流程不受影响
+  }
+}
+
 function absoluteKnowledgeUrl(path = "/") {
   return new URL(path.replace(/^\//, ""), knowledgeBaseOrigin.endsWith("/") ? knowledgeBaseOrigin : `${knowledgeBaseOrigin}/`).href;
 }
@@ -56,7 +90,7 @@ function Landing({ invalidBranch }: { invalidBranch?: string }) {
       <header className="landing-intro">
         <p className="eyebrow">按分支自由练习</p>
         <h1>选一个分支，检验你的理解</h1>
-        <p>每题提交后立即显示答案、解释和对应知识条目。切换分支或刷新页面会清空当前结果。</p>
+        <p>每题提交后立即显示答案、解释和对应知识条目。答题进度保存在此浏览器本地，切换分支或稍后回来都能继续。</p>
       </header>
 
       {invalidBranch ? (
@@ -120,10 +154,11 @@ function QuestionOptions({ question, selectedIds, submitted, onChange }: {
 
 function PracticeSession({ branch }: { branch: Branch }) {
   const questions = getQuestionsByBranch(branch.id);
-  const [questionIndex, setQuestionIndex] = useState(0);
+  const initialAnswers = loadBranchProgress(branch.id, questions);
+  const [questionIndex, setQuestionIndex] = useState(initialAnswers.length);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [submitted, setSubmitted] = useState(false);
-  const [answers, setAnswers] = useState<AnswerRecord[]>([]);
+  const [answers, setAnswers] = useState<AnswerRecord[]>(initialAnswers);
   const currentQuestion = questions[questionIndex];
   const complete = answers.length === questions.length;
 
@@ -142,13 +177,16 @@ function PracticeSession({ branch }: { branch: Branch }) {
       selectedIds: [...selectedIds],
       correct: isExactMatch(selectedIds, currentQuestion.correctOptionIds),
     };
-    setAnswers((current) => [...current, record]);
+    const nextAnswers = [...answers, record];
+    saveBranchProgress(branch.id, nextAnswers);
+    setAnswers(nextAnswers);
     setSelectedIds([]);
     setSubmitted(false);
     if (questionIndex < questions.length - 1) setQuestionIndex((current) => current + 1);
   }
 
   function restart() {
+    saveBranchProgress(branch.id, []);
     setQuestionIndex(0);
     setSelectedIds([]);
     setSubmitted(false);
@@ -202,7 +240,7 @@ function PracticeSession({ branch }: { branch: Branch }) {
       <header className="session-heading">
         <div><p className="eyebrow">{branch.group}</p><h1>{branch.title}</h1></div>
         <div className="progress-copy" aria-label={`第 ${questionIndex + 1} 题，共 ${questions.length} 题`}>
-          <strong>{String(questionIndex + 1).padStart(2, "0")}</strong><span>/ 03</span>
+          <strong>{String(questionIndex + 1).padStart(2, "0")}</strong><span>/ {String(questions.length).padStart(2, "0")}</span>
         </div>
       </header>
       <div className="progress-track" aria-hidden="true"><span style={{ width: `${((questionIndex + 1) / questions.length) * 100}%` }} /></div>
@@ -257,7 +295,7 @@ export function App() {
       <SiteHeader theme={theme} onToggle={toggleTheme} />
       {branch ? <PracticeSession branch={branch} /> : <Landing invalidBranch={branchParameter ?? undefined} />}
       <footer className="practice-footer">
-        <div className="practice-shell"><p>答案与成绩仅保留在当前页面会话中，不会上传或持久保存。</p><a href={absoluteKnowledgeUrl()}>逻辑学知识库</a></div>
+        <div className="practice-shell"><p>答题进度仅保存在此浏览器本地，不会上传或收集；点“重新练习本分支”或清除浏览器数据即可删除。</p><a href={absoluteKnowledgeUrl()}>逻辑学知识库</a></div>
       </footer>
     </>
   );
