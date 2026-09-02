@@ -8,6 +8,7 @@ import {
   writeFileSync,
 } from "node:fs";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 
 const projectRoot = process.cwd();
 const clientDirectory = path.join(projectRoot, "dist", "client");
@@ -86,12 +87,62 @@ for (const htmlFile of collectHtmlFiles(clientDirectory)) {
 
 writeFileSync(path.join(clientDirectory, ".nojekyll"), "", "utf8");
 
+async function materializeDynamicMetadataRoutes() {
+  const metadataRoutes = [
+    ["sitemap.xml", "application/xml"],
+    ["robots.txt", "text/plain"],
+  ];
+  const missingRoutes = metadataRoutes.filter(([relativePath]) =>
+    !existsSync(path.join(clientDirectory, relativePath))
+  );
+  if (missingRoutes.length === 0) return;
+
+  const workerPath = path.join(projectRoot, "dist", "server", "index.js");
+  if (!existsSync(workerPath)) {
+    throw new Error("Pages artifact cannot materialize metadata routes without dist/server/index.js");
+  }
+  const { default: worker } = await import(pathToFileURL(workerPath).href);
+  if (!worker || typeof worker.fetch !== "function") {
+    throw new Error("Pages artifact cannot materialize metadata routes from the built worker");
+  }
+
+  const workerEnvironment = {
+    ASSETS: { fetch: async () => new Response("Not found", { status: 404 }) },
+  };
+  const executionContext = { waitUntil() {}, passThroughOnException() {} };
+  for (const [relativePath, expectedContentType] of missingRoutes) {
+    const requestPath = `${pagesBasePath}/${relativePath}`.replace(/\/{2,}/g, "/");
+    const response = await worker.fetch(
+      new Request(new URL(requestPath, "http://localhost")),
+      workerEnvironment,
+      executionContext,
+    );
+    const contentType = response.headers.get("content-type") ?? "";
+    if (!response.ok || !contentType.toLowerCase().startsWith(expectedContentType)) {
+      throw new Error(
+        `Pages artifact failed to render ${relativePath}: ${response.status} ${contentType}`,
+      );
+    }
+    writeFileSync(
+      path.join(clientDirectory, relativePath),
+      Buffer.from(await response.arrayBuffer()),
+    );
+  }
+}
+
+await materializeDynamicMetadataRoutes();
+
 for (const requiredPath of [
   "index.html",
   "404.html",
   "start/index.html",
   "branches/foundations/index.html",
   "practice/index.html",
+  "sitemap.xml",
+  "robots.txt",
+  "favicon.ico",
+  "icon.png",
+  "apple-icon.png",
   "_next/static",
 ]) {
   if (!existsSync(path.join(clientDirectory, requiredPath))) {

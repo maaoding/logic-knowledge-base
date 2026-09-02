@@ -3,14 +3,14 @@ import "katex/dist/katex.min.css";
 import { SiteFooter } from "../components/site-footer";
 import { SiteHeader } from "../components/site-header";
 import { searchIndex } from "../lib/catalog";
-import { practiceSiteUrl } from "../lib/site-links";
+import { practiceSiteUrl, siteUrl } from "../lib/site-links";
 import "./globals.css";
 
 const siteDescription =
   "从论证、形式系统到多文明逻辑史，为零基础读者建立可搜索、可练习的逻辑学知识网络。";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000/"),
+  metadataBase: siteUrl(),
   title: {
     default: "逻辑学知识库",
     template: "%s｜逻辑学知识库",
