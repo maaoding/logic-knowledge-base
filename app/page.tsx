@@ -19,7 +19,7 @@ export default function Home() {
     <main id="main-content">
       <section className="home-hero shell" aria-labelledby="home-title">
         <div className="hero-copy">
-          <p className="knowledge-label">36 个知识条目 · 30 道分支练习</p>
+          <p className="knowledge-label">36 个知识条目 · 46 道分支练习</p>
           <p className="eyebrow">从论证到证明</p>
           <h1 id="home-title">为零基础读者展开一张逻辑地图</h1>
           <p className="hero-lead">
@@ -155,8 +155,8 @@ export default function Home() {
       </section>
 
       <section className="practice-invite shell" aria-label="分支练习站入口">
-        <strong>读完之后，做三道题。</strong>
-        <p>练习站按十个学科分支组织，每个分支固定三题，提交后立即给出解析与知识条目入口。</p>
+        <strong>读完之后，做一组题。</strong>
+        <p>练习站按十个学科分支组织，每篇知识条目至少对应一题，提交后立即给出解析与知识条目入口。</p>
         <a href={practiceSiteUrl()}>进入分支练习站</a>
       </section>
     </main>

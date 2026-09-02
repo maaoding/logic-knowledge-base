@@ -37,6 +37,18 @@ export const practiceQuestions: PracticeQuestion[] = [
     correctOptionIds: ["a", "b", "d"],
     explanation: "归纳支持有强弱，也可能被新证据修正。即使前提真实，强归纳论证的结论仍可能为假。",
   },
+  {
+    id: "foundations-4", branchId: "foundations", entrySlug: "argument-structure", kind: "single",
+    prompt: "“这家新店门口天天排长队，菜品肯定不错。”要使这个论证的骨架完整，最需要补上哪条隐含前提？",
+    options: [
+      { id: "a", text: "排长队通常说明菜品吸引人" },
+      { id: "b", text: "菜品好的餐厅迟早会排起长队" },
+      { id: "c", text: "有的商家会雇人制造排队的假象" },
+      { id: "d", text: "这家店开业还不满一个月" },
+    ],
+    correctOptionIds: ["a"],
+    explanation: "隐含前提的任务是把明示理由“排长队”与结论“菜品不错”连接起来，选项 a 正是这座桥。b 方向相反：由“好吃迟早有队”推不出“此刻的队说明好吃”；c 是对前提的质疑而非论证依赖的理由；d 只是背景信息，不进入论证骨架。",
+  },
 
   {
     id: "traditional-1", branchId: "traditional", entrySlug: "categorical-propositions", kind: "single",
@@ -73,6 +85,18 @@ export const practiceQuestions: PracticeQuestion[] = [
     ],
     correctOptionIds: ["a", "b", "d"],
     explanation: "文恩图用涂黑表达空集、用 X 表达存在。检验时只把前提画入图中，再看结论是否已经被迫成立。",
+  },
+  {
+    id: "traditional-4", branchId: "traditional", entrySlug: "categorical-syllogism", kind: "single",
+    prompt: "“所有作曲家都识五线谱；所有钢琴家都识五线谱；所以所有作曲家都是钢琴家。”这个三段论形式无效，问题出在哪条规则上？",
+    options: [
+      { id: "a", text: "中项“识五线谱的人”在两个前提中都不周延" },
+      { id: "b", text: "大项“钢琴家”在结论中被不当扩大" },
+      { id: "c", text: "两个前提都是否定命题，中项无法连接两端" },
+      { id: "d", text: "小项“作曲家”在结论中被不当扩大" },
+    ],
+    correctOptionIds: ["a"],
+    explanation: "两个 A 命题的谓项都不周延，中项“识五线谱的人”在前提中从未被谈及全部：作曲家与钢琴家可能各占识谱者中互不重叠的两部分，前提全真而结论可为假。b、d 都不成立——大项与小项在结论中都不周延，谈不上被扩大；两个前提都是肯定命题，也没有违反否定规则。",
   },
 
   {
@@ -111,6 +135,30 @@ export const practiceQuestions: PracticeQuestion[] = [
     correctOptionIds: ["a", "b", "d"],
     explanation: "合取消去、肯定前件和合取引入都是有效规则；由 P→Q 与 Q 倒推 P 是肯定后件。",
   },
+  {
+    id: "propositional-4", branchId: "propositional", entrySlug: "material-implication", kind: "single",
+    prompt: "台风季，教育部门公告：如果台风登陆，全市中小学停课。次日台风没有登陆，学校照常上课。仅就该条件句承诺而言，下列哪项判断正确？",
+    options: [
+      { id: "a", text: "公告被证明为假，因为停课没有发生" },
+      { id: "b", text: "公告未被证假：前件未发生时，该条件句在经典逻辑中为真" },
+      { id: "c", text: "公告的真假取决于台风与停课之间是否存在因果联系" },
+      { id: "d", text: "公告意味着无论台风是否登陆，学校都应停课" },
+    ],
+    correctOptionIds: ["b"],
+    explanation: "实质条件句只在前件真且后件假时为假；台风未登陆使前件为假，无论是否停课，该条件句都不为假，经典逻辑中它为真，即所谓空真。选项 a 弄反了证伪条件：只有台风登陆了却不停课，公告才被违背；选项 c 混入了实质蕴涵并不要求的因果联系；选项 d 把承诺加强成“无论如何都停课”，已不是原句的内容。",
+  },
+  {
+    id: "propositional-5", branchId: "propositional", entrySlug: "natural-deduction", kind: "multiple",
+    prompt: "在自然演绎中使用临时假设和子证明时，哪些操作符合规则？",
+    options: [
+      { id: "a", text: "要证明 P→Q，可以先假设 P，在子证明内推出 Q，再解除假设" },
+      { id: "b", text: "子证明关闭后，其中推出的中间结论仍可继续引用，因为它毕竟被证明过" },
+      { id: "c", text: "每一行证明都应标明所依据的规则以及可用的前提或假设" },
+      { id: "d", text: "为缩短证明，可以省略中间步骤，只要最终结论看起来合理" },
+    ],
+    correctOptionIds: ["a", "c"],
+    explanation: "条件引入的标准用法就是假定前件、在子证明内推出后件、再解除假设，a 正确。临时假设只在子证明内部可用，关闭后保留下来的只是以它为条件推出的结论，b 越过了作用范围；形式证明要求每一行都能由列明的规则和当前可用的行复核，直觉不能替代步骤，d 也不合规。",
+  },
 
   {
     id: "predicate-1", branchId: "predicate", entrySlug: "predicate-language", kind: "single",
@@ -147,6 +195,30 @@ export const practiceQuestions: PracticeQuestion[] = [
     ],
     correctOptionIds: ["a", "b", "d"],
     explanation: "量词顺序决定依赖关系。先存在后全称要求一个共同对象，因此通常蕴涵前式而不反过来。",
+  },
+  {
+    id: "predicate-4", branchId: "predicate", entrySlug: "quantifier-scope", kind: "single",
+    prompt: "批改作业时，甲把“所有 F 都是 G”写成 ∀x(Fx→Gx)，乙写成 ∀xFx→Gx，并声称“只少了一个括号，意思相同”。下列哪项判断正确？",
+    options: [
+      { id: "a", text: "乙说得对：两式中的 x 都被 ∀x 约束，含义相同" },
+      { id: "b", text: "甲式两处 x 都受约束；乙式中 Gx 的 x 落在 ∀x 的辖域之外自由，乙式是含自由变元的开放公式，不是句子" },
+      { id: "c", text: "乙式不合式，因为一个量词不允许约束两处变元" },
+      { id: "d", text: "两式辖域确实不同，但都仍是可在解释下直接判真假的句子" },
+    ],
+    correctOptionIds: ["b"],
+    explanation: "量词的辖域由紧跟其后的公式决定：甲式括号完整，两处 x 都受约束，是句子；乙式缺省括号时 ∀x 只管到 Fx，Gx 中的 x 在辖域外自由，整个公式成为开放公式，真值要等赋值指定对象后才确定。一个量词约束辖域内多处出现完全合法，c 不成立；d 错在只要有一处自由出现，公式就不是句子。",
+  },
+  {
+    id: "predicate-5", branchId: "predicate", entrySlug: "quantifiers", kind: "multiple",
+    prompt: "活动组织者发通知：“并不是所有报名者都完成了缴费。”设 S(x) 表示 x 报了名，P(x) 表示 x 已缴费。下列哪些公式与通知的内容等值？",
+    options: [
+      { id: "a", text: "∃x(Sx∧¬Px)" },
+      { id: "b", text: "¬∀x(Sx→Px)" },
+      { id: "c", text: "∀x(Sx→¬Px)" },
+      { id: "d", text: "¬∃x(Sx∧Px)" },
+    ],
+    correctOptionIds: ["a", "b"],
+    explanation: "通知的直接形式化就是 ¬∀x(Sx→Px)，b 正确；让否定穿过量词，∀ 换成 ∃，条件式的否定翻成合取，得到 ∃x(Sx∧¬Px)，a 正确。c 与 d 都把“至少有一个报名者没缴费”加强成“所有报名者都没缴费”，两者彼此等值，都强于原句，不等值。",
   },
 
   {
@@ -185,6 +257,18 @@ export const practiceQuestions: PracticeQuestion[] = [
     correctOptionIds: ["a", "b", "d"],
     explanation: "模态算子的辖域不能忽略；事实真不自动推出必然真，量词与模态词的顺序也可能改变含义。",
   },
+  {
+    id: "modal-4", branchId: "modal", entrySlug: "possible-worlds-semantics", kind: "single",
+    prompt: "在一个 Kripke 模型中，世界 w 没有任何可及世界。有人在 w 处断言 □P，另一人断言 ◇P。下列哪项正确给出了两句在 w 的真值？",
+    options: [
+      { id: "a", text: "□P 为真：可及范围内找不到 P 为假的反例；◇P 为假：可及范围内也找不到 P 为真的世界" },
+      { id: "b", text: "□P 为假：没有任何世界可用来核实 P；◇P 为真：没有任何世界能否定 P" },
+      { id: "c", text: "两句都为假，因为不存在可及世界供核实" },
+      { id: "d", text: "两句的真值取决于 P 的具体内容，无法仅由可及结构确定" },
+    ],
+    correctOptionIds: ["a"],
+    explanation: "□ 是全称检查：可及世界集合为空时没有反例可找，□P 空真；◇ 是存在检查：找不到满足 P 的可及世界，◇P 为假。b 把“没有核实对象”读成了方向相反的保证；c 让全称与存在在空集上取了相同的值；两句的取值由量词结构与空可及集完全决定，与 P 无关，d 不对。",
+  },
 
   {
     id: "inductive-1", branchId: "inductive", entrySlug: "inductive-strength", kind: "single",
@@ -221,6 +305,30 @@ export const practiceQuestions: PracticeQuestion[] = [
     ],
     correctOptionIds: ["a", "b", "d"],
     explanation: "覆盖力、背景契合与简洁性是常见解释美德；权威姿态或声量本身不会提高解释质量。",
+  },
+  {
+    id: "inductive-4", branchId: "inductive", entrySlug: "enumerative-induction", kind: "single",
+    prompt: "某读书 App 发起年度阅读调查，20 万用户提交了答案，数据显示人均一年读完 28 本书。运营方据此宣布：“全国读者的年平均阅读量约为 28 本。”以下哪项评价最准确？",
+    options: [
+      { id: "a", text: "样本量高达 20 万，数量足够大，结论基本可靠" },
+      { id: "b", text: "把调查连续重复几年，若数字彼此接近，结论即可推广到全国" },
+      { id: "c", text: "样本只覆盖愿意使用读书 App 并主动作答的用户，抽样机制与阅读量相关，结论应缩小到这类人群" },
+      { id: "d", text: "问题只出在“读完”这一口径上，改成“读过哪些书”结论就可靠了" },
+    ],
+    correctOptionIds: ["c"],
+    explanation: "枚举归纳的强度由抽样程序而非数量决定：会打开读书 App 并自愿填答的用户本身就是阅读活跃群体，被抽中的机会与阅读量相关，属于系统性偏差。选项 a 把样本大当代表性强，同一机制重复 20 万次也不会消除偏差；b 的重复调查沿用同一渠道，偏差照样带进下一年；d 只修正了测量口径，没有修抽样框，“谁没被统计”的问题依旧存在。",
+  },
+  {
+    id: "inductive-5", branchId: "inductive", entrySlug: "analogical-argument", kind: "multiple",
+    prompt: "小李论证：“我家的冰箱和邻居家的冰箱是同一品牌、同一年购买，都常年通电；他家那台上个月压缩机坏了，所以我这台也快坏了。”以下哪些判断正确？",
+    options: [
+      { id: "a", text: "若“同一品牌”与压缩机质量之间存在机制联系，这些相似点能为结论提供一定支持" },
+      { id: "b", text: "只要发现两台冰箱的外观颜色不同，这个类比就被彻底驳倒" },
+      { id: "c", text: "列出的相似点越多，类比必然越强" },
+      { id: "d", text: "若邻居家的冰箱长期处在电压不稳的环境里，来源对象不典型，类比的支持会被削弱" },
+    ],
+    correctOptionIds: ["a", "d"],
+    explanation: "类比强度取决于相似点与待推性质有无机制联系：品牌与压缩机质量相关时提供一定支持，a 正确；来源对象不典型——例如在极端电压环境下损坏——会削弱支持，d 正确。b 把任何差异都当成反类比，而只有与待推性质相关的差异才构成反类比，颜色无关；c 正是常见误读，无关相似点可以无限增加，并不能提高强度。",
   },
 
   {
@@ -259,6 +367,30 @@ export const practiceQuestions: PracticeQuestion[] = [
     correctOptionIds: ["a", "b", "d"],
     explanation: "举证责任与宽容原则共同要求证据匹配主张，并避免攻击明显弱化的稻草人；沉默不等于证明。",
   },
+  {
+    id: "informal-4", branchId: "informal", entrySlug: "affirming-the-consequent", kind: "single",
+    prompt: "公司 IT 负责人说：“如果电脑中了勒索病毒，安全软件会弹出高风险告警。小王的电脑今天弹出了高风险告警，所以他的电脑中了勒索病毒。”以下哪项判断正确？",
+    options: [
+      { id: "a", text: "推理有效：高风险告警是病毒感染的标准信号" },
+      { id: "b", text: "只要后来确实在小王电脑上查出了病毒，原推理就被证明有效" },
+      { id: "c", text: "推理无效，所以小王的电脑肯定没有中毒" },
+      { id: "d", text: "推理无效：弹窗也可能来自误报、广告插件或系统更新检查，条件句只说中毒足以触发告警，没说告警只有这一个来源" },
+    ],
+    correctOptionIds: ["d"],
+    explanation: "该推理的形式是“P→Q，Q，所以 P”，即肯定后件。反模型只需要一个可能情形：告警弹出而中毒为假，条件句仍真——误报或插件就是这样的替代来源，举出它们形式无效即告确立，与现实中是否真有误报无关。a 把充分条件误当成唯一来源；b 混淆结论碰巧为真与形式有效，无效性针对形式，不因事后查毒而修复；c 走向另一极端，无效只说明前提不保证结论，感染与否要靠独立检测另行查证。",
+  },
+  {
+    id: "informal-5", branchId: "informal", entrySlug: "ambiguity-and-definition", kind: "multiple",
+    prompt: "部门评审会上有两句争议发言。甲说：“我们应加快处理投诉的流程。”乙说：“这份方案不够成熟。”以下哪些说法正确？",
+    options: [
+      { id: "a", text: "甲句存在句法歧义：既可理解为加快用于处理投诉的流程，也可理解为加快对投诉流程本身的处理，应先列出全部合法读法，再靠语境线索固定" },
+      { id: "b", text: "乙句也是歧义，把“成熟”的两种含义列出来，争论就自然解决" },
+      { id: "c", text: "乙句属于模糊而非歧义：“成熟”含义单一但边界不明，推进办法是设定阈值并交代比较组与测量方式" },
+      { id: "d", text: "甲句既然存在两种读法，基于其中任何一种得出的结论都可以直接采用" },
+    ],
+    correctOptionIds: ["a", "c"],
+    explanation: "甲句的结构允许两种合法读法，属于句法歧义，处理动作是列全读法并找语境线索固定——固定之前，基于任何单一读法的推断都应悬置，a 正确而 d 违反这一点。乙句是“成熟”这类边界不明的词：含义并不分裂，分歧出在灰区，靠设定阈值与测量方式推进，列出含义解决不了问题，b 混淆了歧义与模糊，也高估了灰区分歧消失的可能。",
+  },
 
   {
     id: "mathematical-1", branchId: "mathematical", entrySlug: "proof-and-derivability", kind: "single",
@@ -295,6 +427,18 @@ export const practiceQuestions: PracticeQuestion[] = [
     ],
     correctOptionIds: ["a", "b", "d"],
     explanation: "定理有明确适用条件，并不否定所有证明；它揭示足够强的一致形式理论中存在不可判定命题。",
+  },
+  {
+    id: "mathematical-4", branchId: "mathematical", entrySlug: "soundness-completeness", kind: "single",
+    prompt: "经过验证，公式 φ 在一阶逻辑的所有模型中都为真，即 ⊨φ。根据完全性定理，可以得出什么结论？",
+    options: [
+      { id: "a", text: "存在 φ 的某个形式证明，但定理不提供找到它的方法" },
+      { id: "b", text: "任何一致的系统都能证明 φ" },
+      { id: "c", text: "φ 在所有模型中为真，因此无需再谈证明" },
+      { id: "d", text: "存在机械程序，能对任意公式在有限步内判定它是否可证" },
+    ],
+    correctOptionIds: ["a"],
+    explanation: "完全性把 ⊨ 兑换成 ⊢：语义有效式都有形式证明，但定理只承诺证明存在，不给出构造，写出它仍需自己的工作。可证性相对系统而言，一致的系统未必收录足以推出全部经典有效式的规则，b 不成立；c 把语义有效当成了证明本身，混用了由规则手册与由模型分别决定的两个符号；完全性也不等于可判定性，d 混淆了证明的存在性与机械判定。",
   },
 
   {
@@ -333,6 +477,18 @@ export const practiceQuestions: PracticeQuestion[] = [
     correctOptionIds: ["a", "b", "d"],
     explanation: "两类逻辑关注点不同，却都对“由矛盾可推出任意结论”的经典原则提出限制；它们不等于赞同所有矛盾。",
   },
+  {
+    id: "philosophical-4", branchId: "philosophical", entrySlug: "logical-consequence-pluralism", kind: "single",
+    prompt: "经典语义承认从 P 与 ¬P 可以推出任意 Q，某个次协调语义则不承认。学生据此说：“同一个推理只能有一种正确判定，至少有一方算错了。”以下哪项判断最准确？",
+    options: [
+      { id: "a", text: "说得对：判定相反，必有一方在计算上出错" },
+      { id: "b", text: "双方都没有算错：分歧出在案例层——经典案例不允许矛盾情境，次协调案例专门保留矛盾情境作反例；应先写出双方的案例概念，再分辨实质分歧与术语分歧" },
+      { id: "c", text: "双方都对，可见任何规则系统只要自称逻辑就同样正当" },
+      { id: "d", text: "次协调语义错了：P 与 ¬P 在任何情况下都不可能同时为真" },
+    ],
+    correctOptionIds: ["b"],
+    explanation: "后承关系由案例概念决定：经典赋值不允许矛盾情境，按“不存在反例即有效”爆炸成立；次协调情境专门保留矛盾，它就构成反例。双方在各自问题域内都没有计算错误，正确的顺序是先写清案例概念，再判断分歧落在案例层还是计算层。c 走向另一极端——可并立的多元有下限，不满足一般性、形式性与规范性的规则堆不进入比较；d 把有待检查的案例层问题直接当成前提，恰恰是应该先追问的那一层。",
+  },
 
   {
     id: "history-1", branchId: "history", entrySlug: "mohist-logic", kind: "single",
@@ -369,6 +525,42 @@ export const practiceQuestions: PracticeQuestion[] = [
     ],
     correctOptionIds: ["a", "b", "c"],
     explanation: "三段论、现代量化语言和元数学形成不同阶段；哥德尔的结果讨论形式理论的限制，并不否定三段论有效式。",
+  },
+  {
+    id: "history-4", branchId: "history", entrySlug: "aristotle", kind: "single",
+    prompt: "初读《前分析篇》时，有人把“A 述说所有 B”照字面写成 ∀x(Ax→Bx)。以下哪项判断正确？",
+    options: [
+      { id: "a", text: "方向读反了：原文把谓项 A 放在句首，应读成“所有 B 是 A”，即 ∀x(Bx→Ax)；照字面转写会让格与式的分析全部错位" },
+      { id: "b", text: "写法正确：“A 述说所有 B”的语序与现代记法一致" },
+      { id: "c", text: "亚里士多德研究的是命题联结词的推理，不存在词项之间的包含关系" },
+      { id: "d", text: "这只是记号风格差异，包含方向不影响格与式的判定" },
+    ],
+    correctOptionIds: ["a"],
+    explanation: "“A 述说所有 B”中 A 是谓项，读法是“所有 B 是 A”，对应 ∀x(Bx→Ax)；照字面写成 ∀x(Ax→Bx) 就把包含方向颠倒了，这是初读原文最常见的陷阱，应先固定“述说所有”的翻译规则再逐句转写。c 混淆了两支传统：三段论是词项逻辑，处理词项包含，命题联结词的推理由斯多亚派另建；d 低估了方向的分量，方向一反，格与式的分析随之全错。",
+  },
+  {
+    id: "history-5", branchId: "history", entrySlug: "frege", kind: "single",
+    prompt: "1902 年罗素致信弗雷格指出悖论后，有人评论：“弗雷格的逻辑被证明全错了，量词记法也该一起作废。”以下哪项判断最准确？",
+    options: [
+      { id: "a", text: "评论成立：悖论摧毁了弗雷格的全部贡献" },
+      { id: "b", text: "悖论击中的是基本法则第五条（外延抽象）与建立其上的逻辑主义算术方案；函数—论元分析、量词—变元记法与形式证明观念并未失效，经罗素、希尔伯特一系进入现代逻辑主流" },
+      { id: "c", text: "悖论只针对二维记号的书写不便，改用一行记法就会消失" },
+      { id: "d", text: "悖论说明数学根本不需要逻辑，量词概念也随之失去意义" },
+    ],
+    correctOptionIds: ["b"],
+    explanation: "评价要分层：受击的是基本法则第五条（外延抽象）与建立其上的逻辑主义算术方案，弗雷格本人也承认体系动摇；但函数—论元分析、量词—变元记法与形式证明观念作为工具被完整继承，a 以偏概全。c 把体系与工具混为一谈——二维记号后来被皮亚诺—罗素式一行记法取代是记法演进，与悖论无关；d 把特定体系的失败夸大为整个量化逻辑的失败，逻辑主义此后以类型论等修正形态继续。",
+  },
+  {
+    id: "history-6", branchId: "history", entrySlug: "nyaya", kind: "multiple",
+    prompt: "比较正理派五支论式与亚里士多德三段论时，以下哪些说法恰当？",
+    options: [
+      { id: "a", text: "五支论式含有例证与应用环节，不够“演绎”，因此比三段论低级" },
+      { id: "b", text: "两者的目标与单位不同：三段论研究给定前提下结论的必然性，五支论式服务于公开论辩中让听者接受一个主张" },
+      { id: "c", text: "喻呈现“凡有烟处有火”这类遍充，合把联系接回当前对象，删掉它们损失的是认识论担保而非修辞装饰" },
+      { id: "d", text: "用现代演绎重写五支论式是可行的，因此那种重写就是原传统自己的理解" },
+    ],
+    correctOptionIds: ["b", "c"],
+    explanation: "对照前先问各自传统用论证完成什么任务：三段论关心前提给定时结论的必然性，五支要交代理由、呈现遍充并应用到眼前事例，功能不同结构自然不同，b 正确；喻与合分别承担呈现一般联系与接回当前对象的功能，缺了它们“因”就退化为孤立观察，c 正确。a 按演绎有效性的单一标准给原传统打分，评的是翻译后的重构而非原传统；d 错在后半句——重写是我们的翻译，不是原传统的自我理解。",
   },
 ];
 

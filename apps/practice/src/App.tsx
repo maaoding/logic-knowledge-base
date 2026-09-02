@@ -1,4 +1,4 @@
-import { branches, entryManifest, entryPath, getQuestionsByBranch, type Branch, type PracticeQuestion } from "@logic/domain";
+import { branches, entryManifest, entryPath, getQuestionsByBranch, practiceQuestions, type Branch, type PracticeQuestion } from "@logic/domain";
 import { useState } from "react";
 import { isExactMatch, scoreAnswers, type AnswerRecord } from "./scoring";
 
@@ -39,7 +39,7 @@ function SiteHeader({ theme, onToggle }: { theme: Theme; onToggle: () => void })
       <div className="practice-shell header-inner">
         <a className="practice-brand" href="./">
           <strong>逻辑学分支练习</strong>
-          <small>每次三题 · 即时解析</small>
+          <small>按分支练习 · 即时解析</small>
         </a>
         <nav aria-label="站点操作">
           <a href={absoluteKnowledgeUrl()}>返回逻辑学知识库</a>
@@ -55,7 +55,7 @@ function Landing({ invalidBranch }: { invalidBranch?: string }) {
     <main id="main-content" className="practice-shell landing-main">
       <header className="landing-intro">
         <p className="eyebrow">按分支自由练习</p>
-        <h1>选一个分支，用三道题检验理解</h1>
+        <h1>选一个分支，检验你的理解</h1>
         <p>每题提交后立即显示答案、解释和对应知识条目。切换分支或刷新页面会清空当前结果。</p>
       </header>
 
@@ -66,7 +66,7 @@ function Landing({ invalidBranch }: { invalidBranch?: string }) {
       <section aria-labelledby="branch-list-title">
         <div className="section-heading">
           <div><p className="eyebrow">十个入口</p><h2 id="branch-list-title">从正在学习的部分开始</h2></div>
-          <span>共 30 题</span>
+          <span>共 {practiceQuestions.length} 题</span>
         </div>
         <div className="branch-grid">
           {branches.map((branch) => (
@@ -77,7 +77,7 @@ function Landing({ invalidBranch }: { invalidBranch?: string }) {
                 <h3>{branch.title}</h3>
                 <p>{branch.summary}</p>
               </div>
-              <strong>3 题</strong>
+              <strong>{getQuestionsByBranch(branch.id).length} 题</strong>
             </a>
           ))}
         </div>
@@ -163,8 +163,8 @@ function PracticeSession({ branch }: { branch: Branch }) {
         <header className="result-header">
           <p className="eyebrow">本次练习完成</p>
           <h1>{branch.title}</h1>
-          <p className="result-score"><strong>{score}</strong><span>/ 3</span></p>
-          <p>{score === 3 ? "三个知识点都已掌握，可以继续下一个分支。" : "查看下面的解析与知识链接，再重新练习一次。"}</p>
+          <p className="result-score"><strong>{score}</strong><span>/ {questions.length}</span></p>
+          <p>{score === questions.length ? "本组知识点都已掌握，可以继续下一个分支。" : "查看下面的解析与知识链接，再重新练习一次。"}</p>
         </header>
 
         <ol className="answer-review">

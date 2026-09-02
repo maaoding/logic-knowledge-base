@@ -55,7 +55,7 @@ describe("practice application", () => {
     expect(screen.getByRole("link", { name: "回知识库阅读对应条目" })).toBeTruthy();
   });
 
-  it("finishes three questions, reviews them, and restarts without persisted answers", () => {
+  it("finishes a full branch question set, reviews it, and restarts without persisted answers", () => {
     const branch = branches[1];
     const questions = getQuestionsByBranch(branch.id);
     setLocation(`?branch=${branch.id}`);
@@ -67,8 +67,8 @@ describe("practice application", () => {
       fireEvent.click(screen.getByRole("button", { name: index === questions.length - 1 ? "查看本次结果" : "下一题" }));
     }
 
-    expect(screen.getByText("/ 3")).toBeTruthy();
-    expect(screen.getAllByRole("link", { name: "阅读对应知识条目" })).toHaveLength(3);
+    expect(screen.getByText(`/ ${questions.length}`)).toBeTruthy();
+    expect(screen.getAllByRole("link", { name: "阅读对应知识条目" })).toHaveLength(questions.length);
     fireEvent.click(screen.getByRole("button", { name: "重新练习本分支" }));
     expect(screen.getByRole("button", { name: "提交答案" })).toHaveProperty("disabled", true);
 

@@ -4,7 +4,10 @@ import { practiceQuestions } from "./questions";
 function assertDomainIntegrity() {
   if (branches.length !== 10) throw new Error(`Expected 10 branches, found ${branches.length}.`);
   if (entryManifest.length !== 36) throw new Error(`Expected 36 entries, found ${entryManifest.length}.`);
-  if (practiceQuestions.length !== 30) throw new Error(`Expected 30 questions, found ${practiceQuestions.length}.`);
+  const expectedQuestionTotal = entryManifest.length + branches.length;
+  if (practiceQuestions.length !== expectedQuestionTotal) {
+    throw new Error(`Expected ${expectedQuestionTotal} questions, found ${practiceQuestions.length}.`);
+  }
 
   const branchIds = new Set(branches.map((branch) => branch.id));
   const entryBySlug = new Map(entryManifest.map((entry) => [entry.slug, entry]));
@@ -20,8 +23,17 @@ function assertDomainIntegrity() {
     const questions = practiceQuestions.filter((question) => question.branchId === branch.id);
     const singleCount = questions.filter((question) => question.kind === "single").length;
     const multipleCount = questions.filter((question) => question.kind === "multiple").length;
-    if (questions.length !== 3 || singleCount !== 2 || multipleCount !== 1) {
-      throw new Error(`Branch ${branch.id} must contain exactly 2 single and 1 multiple question.`);
+    const expectedBranchQuestions = entries.length + 1;
+    if (questions.length !== expectedBranchQuestions) {
+      throw new Error(`Branch ${branch.id} must contain exactly ${expectedBranchQuestions} questions.`);
+    }
+    if (singleCount < 2 || multipleCount < 1) {
+      throw new Error(`Branch ${branch.id} must contain at least 2 single and 1 multiple question.`);
+    }
+    for (const entry of entries) {
+      if (!questions.some((question) => question.entrySlug === entry.slug)) {
+        throw new Error(`Entry ${entry.slug} in branch ${branch.id} has no practice question.`);
+      }
     }
   }
 
