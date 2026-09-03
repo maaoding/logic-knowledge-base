@@ -1,44 +1,19 @@
 import { branches, entryManifest, entryPath, getQuestionsByBranch, practiceQuestions, type Branch, type PracticeQuestion } from "@logic/domain";
 import { useState } from "react";
+import {
+  buildProgressOverview,
+  collectWrongAnswers,
+  loadBranchProgress,
+  overrideWrongAnswer,
+  saveBranchProgress,
+  type BranchProgressSummary,
+  type WrongAnswerItem,
+} from "./progress";
 import { isExactMatch, scoreAnswers, type AnswerRecord } from "./scoring";
 
 type Theme = "light" | "dark";
 
 const knowledgeBaseOrigin = import.meta.env.VITE_KNOWLEDGE_BASE_URL ?? "http://localhost:3000/";
-
-const PROGRESS_KEY = "logicPractice.progress";
-
-function readStoredAnswers(): Record<string, AnswerRecord[]> {
-  try {
-    const raw = localStorage.getItem(PROGRESS_KEY);
-    if (!raw) return {};
-    const parsed = JSON.parse(raw);
-    return parsed && typeof parsed === "object" ? parsed : {};
-  } catch {
-    return {};
-  }
-}
-
-function loadBranchProgress(branchId: string, questions: PracticeQuestion[]): AnswerRecord[] {
-  const stored = readStoredAnswers()[branchId];
-  if (!Array.isArray(stored)) return [];
-  // 题库更新后旧记录的题目顺序可能失配，失配即整体作废
-  const matchesCurrentQuestions = stored.every(
-    (record, index) => record && record.questionId === questions[index]?.id,
-  );
-  return matchesCurrentQuestions && stored.length > 0 ? stored : [];
-}
-
-function saveBranchProgress(branchId: string, answers: AnswerRecord[]) {
-  try {
-    const all = readStoredAnswers();
-    if (answers.length === 0) delete all[branchId];
-    else all[branchId] = answers;
-    localStorage.setItem(PROGRESS_KEY, JSON.stringify(all));
-  } catch {
-    // 本地存储不可用（如隐私模式）时仅放弃持久化，答题流程不受影响
-  }
-}
 
 function absoluteKnowledgeUrl(path = "/") {
   return new URL(path.replace(/^\//, ""), knowledgeBaseOrigin.endsWith("/") ? knowledgeBaseOrigin : `${knowledgeBaseOrigin}/`).href;
@@ -84,6 +59,39 @@ function SiteHeader({ theme, onToggle }: { theme: Theme; onToggle: () => void })
   );
 }
 
+function branchProgressLabel(summary: BranchProgressSummary) {
+  if (summary.state === "not-started") return "未开始";
+  if (summary.state === "in-progress") return `进行中 · 已答 ${summary.answered}/${summary.questionTotal}`;
+  return `已完成 · 得分 ${summary.score}/${summary.questionTotal}`;
+}
+
+function ProgressOverviewSection() {
+  const overview = buildProgressOverview();
+  return (
+    <section aria-labelledby="progress-title" className="progress-section">
+      <div className="section-heading">
+        <div><p className="eyebrow">本地进度</p><h2 id="progress-title">学习进度</h2></div>
+        <span>已完成 {overview.completedBranches} / {branches.length} 个分支 · 待复习 {overview.wrongTotal} 道错题</span>
+      </div>
+      {overview.wrongTotal > 0 ? (
+        <a className="review-cta" href="?review=wrong">复习 {overview.wrongTotal} 道错题</a>
+      ) : (
+        <p className="review-calm">暂无待复习的错题，答错的题目会自动汇集到这里。</p>
+      )}
+      <ul className="branch-progress-list">
+        {overview.branchSummaries.map((summary) => (
+          <li key={summary.branch.id}>
+            <a href={`?branch=${summary.branch.id}`}>
+              <strong>{summary.branch.title}</strong>
+              <span className={`branch-progress-state is-${summary.state}`}>{branchProgressLabel(summary)}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
 function Landing({ invalidBranch }: { invalidBranch?: string }) {
   return (
     <main id="main-content" className="practice-shell landing-main">
@@ -96,6 +104,8 @@ function Landing({ invalidBranch }: { invalidBranch?: string }) {
       {invalidBranch ? (
         <p className="invalid-notice" role="alert">没有名为“{invalidBranch}”的练习分支，已返回全部分支。</p>
       ) : null}
+
+      <ProgressOverviewSection />
 
       <section aria-labelledby="branch-list-title">
         <div className="section-heading">
@@ -152,6 +162,17 @@ function QuestionOptions({ question, selectedIds, submitted, onChange }: {
   );
 }
 
+function AnswerFeedback({ question, correct }: { question: PracticeQuestion; correct: boolean }) {
+  return (
+    <div className={`answer-feedback ${correct ? "is-correct" : "is-wrong"}`} role="status" aria-live="polite" data-answer-state={correct ? "correct" : "wrong"}>
+      <strong>{correct ? "回答正确" : "还差一步"}</strong>
+      <p className="correct-answer"><strong>正确答案：</strong>{answerText(question, question.correctOptionIds)}</p>
+      <p>{question.explanation}</p>
+      <a href={knowledgeUrlForQuestion(question)}>回知识库阅读对应条目</a>
+    </div>
+  );
+}
+
 function PracticeSession({ branch }: { branch: Branch }) {
   const questions = getQuestionsByBranch(branch.id);
   const initialAnswers = loadBranchProgress(branch.id, questions);
@@ -159,8 +180,10 @@ function PracticeSession({ branch }: { branch: Branch }) {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [submitted, setSubmitted] = useState(false);
   const [answers, setAnswers] = useState<AnswerRecord[]>(initialAnswers);
+  // 最后一题提交后先留在解析页，点“查看本次结果”才进入结果页；打开已完成分支时直接看结果
+  const [viewingResult, setViewingResult] = useState(initialAnswers.length === questions.length);
   const currentQuestion = questions[questionIndex];
-  const complete = answers.length === questions.length;
+  const complete = viewingResult;
 
   function changeSelection(optionId: string, checked: boolean) {
     if (submitted) return;
@@ -171,7 +194,9 @@ function PracticeSession({ branch }: { branch: Branch }) {
     setSelectedIds((current) => checked ? [...current, optionId] : current.filter((id) => id !== optionId));
   }
 
-  function moveNext() {
+  // 提交即保存：即使未点“下一题”就退出，本题结果也不丢失
+  function submitAnswer() {
+    if (submitted || selectedIds.length === 0) return;
     const record: AnswerRecord = {
       questionId: currentQuestion.id,
       selectedIds: [...selectedIds],
@@ -180,9 +205,17 @@ function PracticeSession({ branch }: { branch: Branch }) {
     const nextAnswers = [...answers, record];
     saveBranchProgress(branch.id, nextAnswers);
     setAnswers(nextAnswers);
+    setSubmitted(true);
+  }
+
+  function moveNext() {
+    if (questionIndex === questions.length - 1) {
+      setViewingResult(true);
+      return;
+    }
     setSelectedIds([]);
     setSubmitted(false);
-    if (questionIndex < questions.length - 1) setQuestionIndex((current) => current + 1);
+    setQuestionIndex((current) => current + 1);
   }
 
   function restart() {
@@ -190,6 +223,7 @@ function PracticeSession({ branch }: { branch: Branch }) {
     setQuestionIndex(0);
     setSelectedIds([]);
     setSubmitted(false);
+    setViewingResult(false);
     setAnswers([]);
   }
 
@@ -255,18 +289,11 @@ function PracticeSession({ branch }: { branch: Branch }) {
           <QuestionOptions question={currentQuestion} selectedIds={selectedIds} submitted={submitted} onChange={changeSelection} />
         </fieldset>
 
-        {submitted ? (
-          <div className={`answer-feedback ${currentCorrect ? "is-correct" : "is-wrong"}`} role="status" aria-live="polite" data-answer-state={currentCorrect ? "correct" : "wrong"}>
-            <strong>{currentCorrect ? "回答正确" : "还差一步"}</strong>
-            <p className="correct-answer"><strong>正确答案：</strong>{answerText(currentQuestion, currentQuestion.correctOptionIds)}</p>
-            <p>{currentQuestion.explanation}</p>
-            <a href={knowledgeUrlForQuestion(currentQuestion)}>回知识库阅读对应条目</a>
-          </div>
-        ) : null}
+        {submitted ? <AnswerFeedback question={currentQuestion} correct={currentCorrect} /> : null}
 
         <div className="question-actions">
           {!submitted ? (
-            <button className="primary-button" type="button" disabled={selectedIds.length === 0} onClick={() => setSubmitted(true)}>提交答案</button>
+            <button className="primary-button" type="button" disabled={selectedIds.length === 0} onClick={submitAnswer}>提交答案</button>
           ) : (
             <button className="primary-button" type="button" onClick={moveNext}>{questionIndex === questions.length - 1 ? "查看本次结果" : "下一题"}</button>
           )}
@@ -277,9 +304,138 @@ function PracticeSession({ branch }: { branch: Branch }) {
   );
 }
 
+function ReviewSession() {
+  const [queue, setQueue] = useState<WrongAnswerItem[]>(() => collectWrongAnswers());
+  const [questionIndex, setQuestionIndex] = useState(0);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [submitted, setSubmitted] = useState(false);
+  const [lastCorrect, setLastCorrect] = useState(false);
+  const [eliminatedCount, setEliminatedCount] = useState(0);
+
+  const finished = questionIndex >= queue.length;
+  const currentItem = finished ? undefined : queue[questionIndex];
+
+  function changeSelection(optionId: string, checked: boolean) {
+    if (submitted || !currentItem) return;
+    if (currentItem.question.kind === "single") {
+      setSelectedIds(checked ? [optionId] : []);
+      return;
+    }
+    setSelectedIds((current) => checked ? [...current, optionId] : current.filter((id) => id !== optionId));
+  }
+
+  // 答对立即覆盖原记录：即使未点“下一题”就退出，消除结果也不丢失；答错保留错题
+  function submitAnswer() {
+    if (!currentItem || submitted || selectedIds.length === 0) return;
+    const correct = isExactMatch(selectedIds, currentItem.question.correctOptionIds);
+    // 仅在原记录确实被覆盖时计数，避免“已消除”数字与存储脱节
+    if (correct && overrideWrongAnswer(currentItem, selectedIds)) {
+      setEliminatedCount((count) => count + 1);
+    }
+    setLastCorrect(correct);
+    setSubmitted(true);
+  }
+
+  function advance() {
+    if (!currentItem) return;
+    setSelectedIds([]);
+    setSubmitted(false);
+    setLastCorrect(false);
+    setQuestionIndex((index) => index + 1);
+  }
+
+  // 再复习一遍：重新汇集仍答错的题目，开新一轮
+  function restartRound() {
+    setQueue(collectWrongAnswers());
+    setQuestionIndex(0);
+    setSelectedIds([]);
+    setSubmitted(false);
+    setLastCorrect(false);
+    setEliminatedCount(0);
+  }
+
+  const breadcrumbs = (
+    <nav className="breadcrumbs" aria-label="面包屑"><a href="./">全部分支</a><span>/</span><span>错题复习</span></nav>
+  );
+
+  if (queue.length === 0) {
+    return (
+      <main id="main-content" className="practice-shell session-main">
+        {breadcrumbs}
+        <header className="review-empty">
+          <p className="eyebrow">错题复习</p>
+          <h1>当前没有待复习的错题</h1>
+          <p>各分支最近一次作答都已正确（或者还没有开始作答）。继续练习，答错的题目会自动汇集到这里。</p>
+          <div className="result-actions"><a className="primary-button" href="./">返回全部分支</a></div>
+        </header>
+      </main>
+    );
+  }
+
+  if (!currentItem) {
+    const pendingCount = queue.length - eliminatedCount;
+    return (
+      <main id="main-content" className="practice-shell session-main result-main">
+        {breadcrumbs}
+        <header className="result-header">
+          <p className="eyebrow">本轮复习完成</p>
+          <h1>错题复习</h1>
+          <div className="review-summary">
+            <p className="result-score"><strong>{eliminatedCount}</strong><span>道已消除</span></p>
+            <p className="result-score"><strong>{pendingCount}</strong><span>道仍待复习</span></p>
+          </div>
+          <p>{pendingCount === 0 ? "这些题目最近一次作答都已答对，原记录已更新为正确。" : "仍待复习的题目保留原记录，可以再来一轮。"}</p>
+        </header>
+        <div className="result-actions">
+          {pendingCount > 0 ? <button className="primary-button" type="button" onClick={restartRound}>再复习一遍</button> : null}
+          <a className="secondary-button" href="./">返回全部分支</a>
+        </div>
+      </main>
+    );
+  }
+
+  return (
+    <main id="main-content" className="practice-shell session-main">
+      {breadcrumbs}
+
+      <header className="session-heading">
+        <div><p className="eyebrow">跨分支薄弱点</p><h1>错题复习</h1></div>
+        <div className="progress-copy" aria-label={`第 ${questionIndex + 1} 题，共 ${queue.length} 题`}>
+          <strong>{String(questionIndex + 1).padStart(2, "0")}</strong><span>/ {String(queue.length).padStart(2, "0")}</span>
+        </div>
+      </header>
+      <div className="progress-track" aria-hidden="true"><span style={{ width: `${((questionIndex + 1) / queue.length) * 100}%` }} /></div>
+
+      <section className="question-panel" aria-labelledby="review-question-title">
+        <div className="question-meta">
+          <span>{currentItem.question.kind === "single" ? "单选题" : "多选题"}</span>
+          <span>来自分支：{currentItem.branch.title}</span>
+        </div>
+        <fieldset>
+          <legend id="review-question-title">{currentItem.question.prompt}</legend>
+          <QuestionOptions question={currentItem.question} selectedIds={selectedIds} submitted={submitted} onChange={changeSelection} />
+        </fieldset>
+
+        {submitted ? <AnswerFeedback question={currentItem.question} correct={lastCorrect} /> : null}
+
+        <div className="question-actions">
+          {!submitted ? (
+            <button className="primary-button" type="button" disabled={selectedIds.length === 0} onClick={submitAnswer}>提交答案</button>
+          ) : (
+            <button className="primary-button" type="button" onClick={advance}>{questionIndex === queue.length - 1 ? "查看复习结果" : "下一题"}</button>
+          )}
+          <a href="./">退出复习</a>
+        </div>
+      </section>
+    </main>
+  );
+}
+
 export function App() {
   const [theme, setTheme] = useState<Theme>(() => document.documentElement.dataset.theme === "dark" ? "dark" : "light");
-  const branchParameter = new URLSearchParams(window.location.search).get("branch");
+  const searchParams = new URLSearchParams(window.location.search);
+  const branchParameter = searchParams.get("branch");
+  const reviewParameter = searchParams.get("review");
   const branch = branches.find((candidate) => candidate.id === branchParameter);
 
   function toggleTheme() {
@@ -293,7 +449,7 @@ export function App() {
     <>
       <a className="skip-link" href="#main-content">跳到正文</a>
       <SiteHeader theme={theme} onToggle={toggleTheme} />
-      {branch ? <PracticeSession branch={branch} /> : <Landing invalidBranch={branchParameter ?? undefined} />}
+      {reviewParameter === "wrong" ? <ReviewSession /> : branch ? <PracticeSession branch={branch} /> : <Landing invalidBranch={branchParameter ?? undefined} />}
       <footer className="practice-footer">
         <div className="practice-shell"><p>答题进度仅保存在此浏览器本地，不会上传或收集；点“重新练习本分支”或清除浏览器数据即可删除。</p><a href={absoluteKnowledgeUrl()}>逻辑学知识库</a></div>
       </footer>

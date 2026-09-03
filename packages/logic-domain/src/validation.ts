@@ -1,4 +1,5 @@
 import { branches, entryManifest } from "./catalog";
+import { learningPaths } from "./paths";
 import { practiceQuestions } from "./questions";
 
 function assertDomainIntegrity() {
@@ -54,6 +55,18 @@ function assertDomainIntegrity() {
       throw new Error(`Multiple question ${question.id} must have 2 or more, but not all, answers.`);
     }
     if (!question.explanation.trim()) throw new Error(`Question ${question.id} needs an explanation.`);
+  }
+
+  const pathSlugs = new Set<string>();
+  for (const path of learningPaths) {
+    if (pathSlugs.has(path.slug)) throw new Error(`Duplicate learning path slug: ${path.slug}`);
+    pathSlugs.add(path.slug);
+    const stepSlugs = new Set<string>();
+    for (const step of path.steps) {
+      if (!entryBySlug.has(step.entrySlug)) throw new Error(`Unknown path step ${step.entrySlug} in ${path.slug}`);
+      if (stepSlugs.has(step.entrySlug)) throw new Error(`Duplicate path step ${step.entrySlug} in ${path.slug}`);
+      stepSlugs.add(step.entrySlug);
+    }
   }
 }
 

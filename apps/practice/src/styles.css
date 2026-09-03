@@ -289,6 +289,81 @@ legend {
   white-space: nowrap;
 }
 
+.progress-section {
+  margin-bottom: 72px;
+}
+
+.review-cta {
+  display: inline-flex;
+  align-items: center;
+  min-height: 48px;
+  margin-top: 24px;
+  padding: 10px 20px;
+  border: 1px solid var(--red);
+  border-radius: 2px;
+  background: var(--red-soft);
+  color: var(--red);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.review-calm {
+  margin: 24px 0 0;
+  color: var(--muted);
+}
+
+.branch-progress-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 24px 0 0;
+  padding: 0;
+  list-style: none;
+  border-bottom: 1px solid var(--line);
+}
+
+.branch-progress-list li {
+  min-width: 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.branch-progress-list li:nth-child(odd) {
+  border-right: 1px solid var(--line);
+}
+
+.branch-progress-list a {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: center;
+  padding: 16px 20px;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.branch-progress-list a:hover {
+  background: var(--surface);
+}
+
+.branch-progress-list strong {
+  font-family: "Songti SC", SimSun, "Noto Serif CJK SC", serif;
+  font-size: 1.02rem;
+}
+
+.branch-progress-state {
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.branch-progress-state.is-in-progress {
+  color: var(--blue);
+}
+
+.branch-progress-state.is-completed {
+  color: var(--green);
+}
+
 .session-main {
   width: min(820px, calc(100% - 48px));
   padding-block: 36px 96px;
@@ -604,6 +679,35 @@ legend {
   font-weight: 700;
 }
 
+.review-empty h1 {
+  margin: 0;
+  font-size: clamp(2.2rem, 6vw, 4rem);
+  font-weight: 600;
+  line-height: 1.1;
+}
+
+.review-empty > p {
+  max-width: 640px;
+  margin: 20px 0 0;
+  color: var(--muted);
+  font-size: 1.05rem;
+}
+
+.review-empty .result-actions {
+  margin-top: 32px;
+}
+
+.review-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 56px;
+  margin-top: 30px;
+}
+
+.review-summary .result-score {
+  margin: 0;
+}
+
 .practice-footer {
   border-top: 1px solid var(--line);
   color: var(--muted);
@@ -677,6 +781,38 @@ legend {
 
   .branch-grid {
     grid-template-columns: 1fr;
+  }
+
+  .progress-section {
+    margin-bottom: 48px;
+  }
+
+  /* 窄屏下统计文字放不下，改为标题在上、统计在下，避免标题被挤成竖排 */
+  .progress-section .section-heading {
+    flex-direction: column;
+    align-items: start;
+    gap: 6px;
+  }
+
+  .progress-section .section-heading > span {
+    white-space: normal;
+  }
+
+  .branch-progress-list {
+    grid-template-columns: 1fr;
+  }
+
+  .branch-progress-list li:nth-child(odd) {
+    border-right: 0;
+  }
+
+  .branch-progress-list a {
+    gap: 10px;
+    padding: 14px 4px;
+  }
+
+  .review-summary {
+    gap: 12px 32px;
   }
 
   .branch-card {
