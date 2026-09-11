@@ -239,6 +239,8 @@ function PracticeSession({ branch }: { branch: Branch }) {
 
   if (complete) {
     const score = scoreAnswers(answers);
+    // 与 landing 的进度概览同源：跨分支错题总数，点击进入错题复习
+    const wrongTotal = buildProgressOverview().wrongTotal;
     return (
       <main id="main-content" className="practice-shell session-main result-main">
         <nav className="breadcrumbs" aria-label="面包屑"><a href="./">全部分支</a><span>/</span><span>{branch.title}</span></nav>
@@ -269,6 +271,7 @@ function PracticeSession({ branch }: { branch: Branch }) {
         </ol>
 
         <div className="result-actions">
+          {wrongTotal > 0 ? <a className="secondary-button" href="?review=wrong">复习 {wrongTotal} 道错题</a> : null}
           <button className="primary-button" type="button" onClick={restart}>重新练习本分支</button>
           <a className="secondary-button" href="./">选择其他分支</a>
         </div>

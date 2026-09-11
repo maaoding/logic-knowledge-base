@@ -86,6 +86,22 @@ describe("practice application", () => {
     untouched.unmount();
   });
 
+  it("offers the review entry on the result page only when wrong answers exist", () => {
+    const branch = branches[0];
+    setLocation(`?branch=${branch.id}`);
+    seedBranchWithWrongAt(branch.id, 0);
+    const withWrong = render(<App />);
+    const reviewLink = withWrong.container.querySelector('a[href="?review=wrong"]');
+    expect(reviewLink?.textContent).toBe("复习 1 道错题");
+    withWrong.unmount();
+
+    setLocation(`?branch=${branch.id}`);
+    seedCompleteBranch(branch.id);
+    const allCorrect = render(<App />);
+    expect(allCorrect.container.querySelector('a[href="?review=wrong"]')).toBeNull();
+    allCorrect.unmount();
+  });
+
   it("updates the document title for branch and review views", () => {
     setLocation("?branch=foundations");
     const { unmount } = render(<App />);
