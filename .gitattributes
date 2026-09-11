@@ -1,0 +1,4 @@
+# 仓库文本统一 LF，消除 Windows autocrlf 的换行警告；二进制资源不转换
+* text=auto eol=lf
+*.png -text
+*.ico -text
