@@ -59,6 +59,10 @@ test("renders argument analysis cases with lenses and open questions", async () 
   assert.match(html, /你没学过财务，预算就轮不到你质疑/);
   assert.match(html, /不全面禁手机，课堂就只能失控/);
   assert.match(html, /打卡用户成绩高，所以打卡让人成绩提高/);
+  assert.match(html, /没有任何漏洞能逃过数学的检验/);
+  assert.match(html, /要么按期上线，要么项目失败/);
+  assert.match(html, /id="formal-verification-claim"/);
+  assert.match(html, /id="excluded-middle-deadline"/);
 });
 
 test("renders grouped learning resources with external links", async () => {
@@ -90,7 +94,7 @@ test("integrates the reference sections into navigation and the homepage", async
   for (const href of ["/glossary", "/comparisons", "/cases", "/resources"]) {
     assert.match(html, new RegExp(`href="${href}"`), href);
   }
-  assert.match(html, /搜索覆盖(?:\s|<!-- -->)*130(?:\s|<!-- -->)*项本地内容/);
+  assert.match(html, /搜索覆盖(?:\s|<!-- -->)*132(?:\s|<!-- -->)*项本地内容/);
 });
 
 test("explains the four learning stages without misstating path length", async () => {
