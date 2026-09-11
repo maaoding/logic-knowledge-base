@@ -34,6 +34,8 @@ test("renders concept comparisons with shared, difference and watch fields", asy
   assert.equal(response.status, 200);
   const html = await response.text();
   assert.match(html, /易混概念对照/);
+  assert.match(html, /快速跳转/);
+  assert.match(html, /href="#deduction-vs-induction"/);
   assert.match(html, /共同点/);
   assert.match(html, /关键差异/);
   assert.match(html, /易混场景/);

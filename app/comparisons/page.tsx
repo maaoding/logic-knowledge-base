@@ -24,6 +24,17 @@ export default function ComparisonsPage() {
         <p>{comparisonsIntro}</p>
       </header>
 
+      <nav className="quick-jump" aria-label="对照快速跳转">
+        <p className="eyebrow">快速跳转</p>
+        <ul>
+          {conceptComparisons.map((comparison) => (
+            <li key={comparison.slug}>
+              <a href={`#${comparison.slug}`}>{comparison.left.label} vs {comparison.right.label}</a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+
       <div className="comparison-list">
         {conceptComparisons.map((comparison) => {
           const left = getEntry(comparison.left.entrySlug);

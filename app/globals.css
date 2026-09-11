@@ -2250,14 +2250,14 @@ kbd {
 }
 
 /* 论证分析案例 */
-.case-jump {
+.quick-jump {
   margin: 34px 0 44px;
   padding: 16px 0;
   border-top: 1px solid var(--line);
   border-bottom: 1px solid var(--line);
 }
 
-.case-jump ul {
+.quick-jump ul {
   display: flex;
   flex-wrap: wrap;
   gap: 8px 10px;
@@ -2266,7 +2266,7 @@ kbd {
   list-style: none;
 }
 
-.case-jump a {
+.quick-jump a {
   display: inline-block;
   padding: 5px 12px;
   border: 1px solid var(--line-strong);
@@ -2275,7 +2275,7 @@ kbd {
   font-size: 0.8rem;
 }
 
-.case-jump a:hover {
+.quick-jump a:hover {
   border-color: var(--rust);
   color: var(--rust);
 }

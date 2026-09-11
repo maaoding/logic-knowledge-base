@@ -24,7 +24,7 @@ export default function CasesPage() {
         <p>{casesIntro}</p>
       </header>
 
-      <nav className="case-jump" aria-label="案例快速跳转">
+      <nav className="quick-jump" aria-label="案例快速跳转">
         <p className="eyebrow">快速跳转</p>
         <ul>
           {argumentCases.map((argumentCase) => (
