@@ -9,21 +9,6 @@ beforeEach(() => {
 
 afterEach(() => cleanup());
 
-// jsdom 未实现 dialog 模态方法与 scrollIntoView，补最小桩
-beforeEach(() => {
-  if (!HTMLDialogElement.prototype.showModal) {
-    HTMLDialogElement.prototype.showModal = function showModal() {
-      this.open = true;
-    };
-  }
-  if (!HTMLDialogElement.prototype.close) {
-    HTMLDialogElement.prototype.close = function close() {
-      this.open = false;
-    };
-  }
-  Element.prototype.scrollIntoView = function scrollIntoView() {};
-});
-
 function renderOpen(onClose = vi.fn()) {
   render(<SearchDialog searchCount={135} open onClose={onClose} />);
   return onClose;
