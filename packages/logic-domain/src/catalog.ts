@@ -1,3 +1,4 @@
+import type { LearningPath } from "./paths";
 import type { Branch, BranchId, EntryKind, EntryManifest } from "./types";
 
 export const branches: Branch[] = [
@@ -83,4 +84,13 @@ export function getEntryManifest(slug: string, kind?: EntryKind) {
 
 export function getEntryManifestsByBranch(branchId: BranchId) {
   return entryManifest.filter((entry) => entry.branchId === branchId);
+}
+
+export function getPathBranchIds(path: Pick<LearningPath, "steps">) {
+  const branchIds: BranchId[] = [];
+  for (const step of path.steps) {
+    const entry = entryBySlug.get(step.entrySlug);
+    if (entry && !branchIds.includes(entry.branchId)) branchIds.push(entry.branchId);
+  }
+  return branchIds;
 }

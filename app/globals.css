@@ -896,6 +896,12 @@ kbd {
   color: var(--paper-strong);
 }
 
+.practice-invite-links {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
 .site-footer {
   border-top: 1px solid var(--line-strong);
   background: var(--paper-strong);
@@ -1275,6 +1281,77 @@ kbd {
   font-weight: 700;
   text-decoration: underline;
   text-underline-offset: 0.2em;
+}
+
+.path-companions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 0.9fr);
+  gap: 32px;
+  margin-top: 74px;
+  padding: 24px;
+  border: 1px solid var(--line);
+  background: var(--paper-strong);
+}
+
+.path-companions h2,
+.path-companions p {
+  margin: 0;
+}
+
+.path-companions > div > p + p {
+  margin-top: 10px;
+}
+
+.path-companions ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.path-companions li {
+  display: grid;
+  gap: 6px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.path-companions li:first-child {
+  padding-top: 0;
+}
+
+.path-companions li:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.path-companions strong {
+  font-family: var(--font-serif);
+}
+
+.path-companions + .practice-invite {
+  margin-top: 60px;
+}
+
+.companion-row {
+  color: var(--muted);
+  font-size: 0.84rem;
+  line-height: 1.9;
+}
+
+.companion-kind {
+  margin-right: 8px;
+  color: var(--rust);
+  font-weight: 700;
+}
+
+.companion-row a {
+  color: var(--ink-soft);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.companion-row a:hover {
+  color: var(--blue);
 }
 
 .path-steps li {
@@ -1868,6 +1945,16 @@ kbd {
   .path-foundations {
     grid-template-columns: 1fr;
     gap: 14px;
+  }
+
+  .path-companions {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .practice-invite-links {
+    flex-direction: row;
+    flex-wrap: wrap;
   }
 
   .reference-card {

@@ -4,6 +4,7 @@ import {
   entryPath as domainEntryPath,
   getBranchManifest,
   getLearningPath,
+  getPathBranchIds,
   learningPaths,
   type Branch,
   type BranchId,
@@ -35,7 +36,7 @@ import {
 } from "./content";
 
 export type { Branch, BranchId, Difficulty, EntryKind, Formula, WorkedExample, LearningPath, PathStep };
-export { branches, learningPaths, getLearningPath };
+export { branches, learningPaths, getLearningPath, getPathBranchIds };
 
 export interface KnowledgeEntry extends EntryManifest, Omit<EntryContent, "slug"> {}
 
@@ -147,6 +148,35 @@ export function resolveEntries(slugs: string[]) {
 
 export function isCoreEntry(slug: string) {
   return coreEntrySlugs.has(slug);
+}
+
+export interface CompanionLink {
+  label: string;
+  href: string;
+}
+
+export interface CompanionGroup {
+  kind: "对照" | "案例" | "术语";
+  links: CompanionLink[];
+}
+
+// 学习路径步骤的配套速查：从术语 seeAlso、对照两端与案例透镜反查，指向栏目页锚点
+export function getCompanionGroupsForEntry(slug: string): CompanionGroup[] {
+  const comparisons = conceptComparisons
+    .filter((comparison) => comparison.left.entrySlug === slug || comparison.right.entrySlug === slug)
+    .map((comparison) => ({ label: `${comparison.left.label}与${comparison.right.label}`, href: `/comparisons#${comparison.slug}` }));
+  const cases = argumentCases
+    .filter((argumentCase) => argumentCase.lenses.some((lens) => lens.entrySlug === slug))
+    .map((argumentCase) => ({ label: argumentCase.title, href: `/cases#${argumentCase.slug}` }));
+  const terms = glossaryTerms
+    .filter((term) => term.seeAlso.includes(slug))
+    .map((term) => ({ label: term.term, href: `/glossary#${glossaryTermId(term)}` }));
+  const groups: CompanionGroup[] = [
+    { kind: "对照", links: comparisons },
+    { kind: "案例", links: cases },
+    { kind: "术语", links: terms },
+  ];
+  return groups.filter((group) => group.links.length > 0);
 }
 
 const entrySearchIndex: SearchRecord[] = knowledgeEntries.map((entry) => ({

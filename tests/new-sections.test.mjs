@@ -105,6 +105,32 @@ test("shows prerequisite guidance before advanced learning paths", async () => {
   assert.match(html, /真值、有效性与健全性/);
 });
 
+test("links each path step to companion comparisons, cases and glossary terms", async () => {
+  const response = await render("/paths/argument-to-validity");
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /配套速查/);
+  assert.match(html, /每个步骤的对照、案例与术语/);
+  assert.match(html, /href="\/comparisons#deduction-vs-induction"/);
+  assert.match(html, /href="\/cases#app-review-claim"/);
+  assert.match(html, /href="\/glossary#term-[^"]+"/);
+  for (const kind of ["对照", "案例", "术语"]) {
+    assert.match(html, new RegExp(`class="companion-kind">${kind}`), kind);
+  }
+});
+
+test("offers direct practice branch links on learning path pages", async () => {
+  const response = await render("/paths/argument-to-validity");
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /完成路径后，回到分支检验。/);
+  // JSX 相邻文本节点之间会出现 <!-- --> 注释，如“练习<!-- -->逻辑基础”
+  assert.match(html, /练习(?:<!-- -->)?逻辑基础/);
+  for (const branchId of ["foundations", "traditional", "propositional"]) {
+    assert.match(html, new RegExp(`\\?branch=${branchId}`), branchId);
+  }
+});
+
 test("keeps corrected logic distinctions visible in reader-facing pages", async () => {
   const [quantifierResponse, squareResponse, modalResponse, relevanceResponse] = await Promise.all([
     render("/methods/multiple-quantification"),
