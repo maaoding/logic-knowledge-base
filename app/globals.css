@@ -1561,6 +1561,19 @@ kbd {
   font-size: 0.76rem;
 }
 
+.entry-paths {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+.entry-paths a {
+  color: var(--blue);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
 .logic-formula {
   margin: 34px 0;
   padding: 22px 20px 16px;

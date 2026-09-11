@@ -1,7 +1,9 @@
 import Link from "next/link";
+import { Fragment } from "react";
 import {
   entryPath,
   getBranch,
+  getPathMemberships,
   isCoreEntry,
   resolveEntries,
   type KnowledgeEntry,
@@ -42,6 +44,7 @@ export function EntryView({ entry }: { entry: KnowledgeEntry }) {
   const prerequisites = resolveEntries(entry.prerequisiteSlugs);
   const related = resolveEntries(entry.relatedSlugs);
   const coreEntry = isCoreEntry(entry.slug);
+  const pathMemberships = getPathMemberships(entry.slug);
 
   return (
     <main id="main-content" className="article-shell">
@@ -64,6 +67,17 @@ export function EntryView({ entry }: { entry: KnowledgeEntry }) {
             <h1>{entry.title}</h1>
             <p className="article-lead">{entry.summary}</p>
             {entry.aliases.length ? <p className="aliases">别名：{entry.aliases.join("、")}</p> : null}
+            {pathMemberships.length ? (
+              <p className="entry-paths">
+                所属路径：
+                {pathMemberships.map(({ path, stepNumber }, index) => (
+                  <Fragment key={path.slug}>
+                    {index > 0 ? <span aria-hidden="true"> · </span> : null}
+                    <Link href={`/paths/${path.slug}`}>{path.title} 第 {stepNumber} 步</Link>
+                  </Fragment>
+                ))}
+              </p>
+            ) : null}
           </header>
 
           {entry.keyTakeaway ? (

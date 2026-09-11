@@ -137,6 +137,21 @@ export function isCoreEntry(slug: string) {
   return coreEntrySlugs.has(slug);
 }
 
+export interface EntryPathMembership {
+  path: LearningPath;
+  stepNumber: number;
+}
+
+// 条目 → 学习路径反链：路径页与练习解析都指向条目，这里让条目页回指所属路径与步骤
+export function getPathMemberships(slug: string): EntryPathMembership[] {
+  const memberships: EntryPathMembership[] = [];
+  for (const path of learningPaths) {
+    const stepIndex = path.steps.findIndex((step) => step.entrySlug === slug);
+    if (stepIndex >= 0) memberships.push({ path, stepNumber: stepIndex + 1 });
+  }
+  return memberships;
+}
+
 export interface CompanionLink {
   label: string;
   href: string;

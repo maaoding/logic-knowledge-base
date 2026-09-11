@@ -28,6 +28,10 @@ describe("entry view", () => {
     const practiceLink = screen.getByRole("link", { name: "去练习站检验本分支" }) as HTMLAnchorElement;
     expect(practiceLink.href).toBe("http://localhost:3001/?branch=foundations");
 
+    // 条目页回指所属学习路径与步骤
+    const pathLink = screen.getByRole("link", { name: "从论证到有效性 第 3 步" }) as HTMLAnchorElement;
+    expect(pathLink.getAttribute("href")).toBe("/paths/argument-to-validity");
+
     const prerequisiteSection = screen.getByRole("heading", { name: "前置知识" }).closest("section");
     expect(prerequisiteSection?.querySelectorAll("a").length).toBeGreaterThan(0);
 
@@ -45,5 +49,7 @@ describe("entry view", () => {
     // 面包屑回到所属分支（同名链接在侧栏「所属分支」还有一处，需限定范围）
     const breadcrumbs = screen.getByRole("navigation", { name: "面包屑" });
     expect(within(breadcrumbs).getByRole("link", { name: "逻辑学史" })).toBeTruthy();
+    // 历史条目不属于任何学习路径，不应出现所属路径行
+    expect(screen.queryByText(/所属路径/)).toBeNull();
   });
 });

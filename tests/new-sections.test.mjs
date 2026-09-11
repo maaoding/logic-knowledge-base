@@ -91,6 +91,10 @@ test("renders key takeaway and self-check blocks on entry pages", async () => {
   assert.match(html, /一句话结论/);
   assert.match(html, /快速自测/);
   assert.match(html, /<details class="self-check-item"/);
+  // 条目页回指所属学习路径与步骤序号
+  assert.match(html, /所属路径/);
+  assert.match(html, /href="\/paths\/argument-to-validity"/);
+  assert.match(html, /从论证到有效性(?:\s|<!-- -->)*第(?:\s|<!-- -->)*3(?:\s|<!-- -->)*步/);
 });
 
 test("integrates the reference sections into navigation and the homepage", async () => {
