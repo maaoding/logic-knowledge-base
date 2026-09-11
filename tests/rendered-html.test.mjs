@@ -150,6 +150,10 @@ test("returns the custom 404 for unknown knowledge routes", async () => {
   assert.equal(response.status, 404);
   const html = await response.text();
   assert.match(html, /无效路径不产生结论/);
+  // 404 提供三条恢复入口：首页、学习路径、零基础起点
+  assert.match(html, /href="\/"/);
+  assert.match(html, /href="\/paths"/);
+  assert.match(html, /href="\/start"/);
 });
 
 test("keeps the workspace local-only and exposes both application commands", async () => {
