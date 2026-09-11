@@ -283,10 +283,32 @@ legend {
   line-height: 1.65;
 }
 
-.branch-card > strong {
+.branch-card-meta {
+  display: grid;
+  gap: 4px;
+  justify-items: end;
+  text-align: right;
+}
+
+.branch-card-meta strong {
   color: var(--muted);
   font-size: 0.8rem;
   white-space: nowrap;
+}
+
+.branch-card-progress {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: normal;
+  white-space: nowrap;
+}
+
+.branch-card-progress.is-in-progress {
+  color: var(--blue);
+}
+
+.branch-card-progress.is-completed {
+  color: var(--green);
 }
 
 .progress-section {

@@ -59,6 +59,33 @@ describe("practice application", () => {
     expect(screen.getByRole("alert").textContent).toContain("unknown-branch");
   });
 
+  it("shows per-branch progress state on branch cards", () => {
+    const branch = branches[0];
+    const questions = getQuestionsByBranch(branch.id);
+    localStorage.setItem("logicPractice.progress", JSON.stringify({
+      [branch.id]: questions.slice(0, 2).map((question) => ({
+        questionId: question.id,
+        selectedIds: [...question.correctOptionIds],
+        correct: true,
+      })),
+    }));
+    const { container, unmount } = render(<App />);
+    // 进度概览列表也有同 href 链接，必须限定到分支卡
+    const card = container.querySelector(`.branch-card[href="?branch=${branch.id}"]`);
+    expect(card?.querySelector(".branch-card-progress.is-in-progress")?.textContent).toBe(`进行中 · 已答 2/${questions.length}`);
+    unmount();
+
+    seedCompleteBranch(branch.id);
+    const rerun = render(<App />);
+    const completedCard = rerun.container.querySelector(`.branch-card[href="?branch=${branch.id}"]`);
+    expect(completedCard?.querySelector(".branch-card-progress.is-completed")?.textContent).toBe(`已完成 · 得分 ${questions.length}/${questions.length}`);
+    rerun.unmount();
+
+    const untouched = render(<App />);
+    expect(untouched.container.querySelector(".branch-card[href=\"?branch=traditional\"] .branch-card-progress")).toBeNull();
+    untouched.unmount();
+  });
+
   it("prevents empty submission, locks the answer, and displays the correct answer and explanation", () => {
     const branch = branches[0];
     const question = getQuestionsByBranch(branch.id)[0];

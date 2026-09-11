@@ -7,6 +7,7 @@ import {
   overrideWrongAnswer,
   saveBranchProgress,
   type BranchProgressSummary,
+  type ProgressOverview,
   type WrongAnswerItem,
 } from "./progress";
 import { isExactMatch, scoreAnswers, type AnswerRecord } from "./scoring";
@@ -65,8 +66,7 @@ function branchProgressLabel(summary: BranchProgressSummary) {
   return `已完成 · 得分 ${summary.score}/${summary.questionTotal}`;
 }
 
-function ProgressOverviewSection() {
-  const overview = buildProgressOverview();
+function ProgressOverviewSection({ overview }: { overview: ProgressOverview }) {
   return (
     <section aria-labelledby="progress-title" className="progress-section">
       <div className="section-heading">
@@ -93,6 +93,8 @@ function ProgressOverviewSection() {
 }
 
 function Landing({ invalidBranch }: { invalidBranch?: string }) {
+  const overview = buildProgressOverview();
+  const summaryByBranch = new Map(overview.branchSummaries.map((summary) => [summary.branch.id, summary]));
   return (
     <main id="main-content" className="practice-shell landing-main">
       <header className="landing-intro">
@@ -105,7 +107,7 @@ function Landing({ invalidBranch }: { invalidBranch?: string }) {
         <p className="invalid-notice" role="alert">没有名为“{invalidBranch}”的练习分支，已返回全部分支。</p>
       ) : null}
 
-      <ProgressOverviewSection />
+      <ProgressOverviewSection overview={overview} />
 
       <section aria-labelledby="branch-list-title">
         <div className="section-heading">
@@ -113,17 +115,25 @@ function Landing({ invalidBranch }: { invalidBranch?: string }) {
           <span>共 {practiceQuestions.length} 题</span>
         </div>
         <div className="branch-grid">
-          {branches.map((branch) => (
-            <a href={`?branch=${branch.id}`} className="branch-card" key={branch.id}>
-              <span className="branch-symbol">{branch.symbol}</span>
-              <div>
-                <small>{branch.group} · {branch.level}</small>
-                <h3>{branch.title}</h3>
-                <p>{branch.summary}</p>
-              </div>
-              <strong>{getQuestionsByBranch(branch.id).length} 题</strong>
-            </a>
-          ))}
+          {branches.map((branch) => {
+            const summary = summaryByBranch.get(branch.id);
+            return (
+              <a href={`?branch=${branch.id}`} className="branch-card" key={branch.id}>
+                <span className="branch-symbol">{branch.symbol}</span>
+                <div>
+                  <small>{branch.group} · {branch.level}</small>
+                  <h3>{branch.title}</h3>
+                  <p>{branch.summary}</p>
+                </div>
+                <div className="branch-card-meta">
+                  <strong>{getQuestionsByBranch(branch.id).length} 题</strong>
+                  {summary && summary.state !== "not-started" ? (
+                    <small className={`branch-card-progress is-${summary.state}`}>{branchProgressLabel(summary)}</small>
+                  ) : null}
+                </div>
+              </a>
+            );
+          })}
         </div>
       </section>
     </main>
