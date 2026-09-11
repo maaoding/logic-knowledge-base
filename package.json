@@ -20,8 +20,9 @@
     "start": "vinext start",
     "test": "npm run build && npm run test:built",
     "test:built": "node --test tests/*.test.mjs",
+    "test:components": "vitest run --config vitest.config.ts",
     "test:practice": "npm run test --workspace @logic/practice",
-    "test:all": "npm run build:all && npm run test:built && npm run test:practice",
+    "test:all": "npm run build:all && npm run test:built && npm run test:practice && npm run test:components",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next --ignore-pattern apps/practice/dist",
     "typecheck": "tsc --noEmit --incremental false && npm run typecheck --workspace @logic/practice"
   },
