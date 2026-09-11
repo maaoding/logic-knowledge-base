@@ -150,4 +150,26 @@ export const conceptComparisons: ConceptComparison[] = [
     watch:
       "“无论赛况如何，总会有人获胜”通常是 de dicto，不指定同一个人；“有一位选手无论赛况如何都会获胜”是 de re，锁定同一位选手。把“每个情形各有一个”偷换成“有一个适用于每个情形”，就交换了 □ 与 ∃ 的辖域。",
   },
+  {
+    slug: "provability-vs-truth",
+    left: { label: "可证明", entrySlug: "proof-and-derivability" },
+    right: { label: "为真", entrySlug: "godel-incompleteness" },
+    shared:
+      "都是符号句子的“成立”方式，都在形式系统内部谈论，日常说“这在系统里成立”时可能指其中任何一种。",
+    difference:
+      "可证明是语法事实：存在一个从公理和推理规则出发的有限符号序列，可以被逐行检查；为真是语义事实：句子在预想的标准模型中成立。可靠性与完全性刻画二者何时重合；哥德尔第一不完全性定理则说明，足够强且一致的算术理论必然证尽不了标准算术真理——存在为真却不可证明的算术命题。",
+    watch:
+      "“我证不出来，所以它不成立”是高频错误：证不出可能只是系统不够强，或者证明超出了当前工具。反方向同样要小心——把“真”当“可证”，会在不完全性处翻车；谈数学主张时先分清说的是语义真理还是系统内定理。",
+  },
+  {
+    slug: "classical-vs-intuitionistic-consequence",
+    left: { label: "经典后承", entrySlug: "classical-and-intuitionistic" },
+    right: { label: "直觉主义后承", entrySlug: "classical-and-intuitionistic" },
+    shared:
+      "都用“前提保证结论”刻画推理，都写成 Γ ⊨ φ 的形状，差别全在“保证”按什么标准兑现。",
+    difference:
+      "经典逻辑按真值条件兑现：任何解释下前提真而结论假都不可能，排中律和双重否定消去普遍可用。直觉主义逻辑按构造性证明兑现：后承要求能构造出结论的证明，排中律 P∨¬P 不再是定理，可推出的结论因此更少——经典有效的推理，直觉主义未必承认。",
+    watch:
+      "把经典等值式（如 P∨¬P、¬¬P→P）照搬进直觉主义语境会出错；反过来，肯定前件这类两边都承认的规则才可放心通用。读到 ⊨ 时先问用的是哪套语义，再判断“有效”指什么。",
+  },
 ];

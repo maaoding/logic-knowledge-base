@@ -38,6 +38,11 @@ test("renders concept comparisons with shared, difference and watch fields", asy
   assert.match(html, /关键差异/);
   assert.match(html, /易混场景/);
   assert.match(html, /de re 从物/);
+  // 对照标题的可见文本是“左标签 vs 右标签”（“与”仅存在于 sr-only）
+  assert.match(html, /id="provability-vs-truth-title"/);
+  assert.match(html, /id="classical-vs-intuitionistic-consequence-title"/);
+  assert.match(html, /存在为真却不可证明的算术命题/);
+  assert.match(html, /排中律 P∨¬P 不再是定理/);
   assert.match(html, /aria-labelledby="contradictory-vs-contrary-title"/);
   assert.match(html, /<h2 class="comparison-pair" id="contradictory-vs-contrary-title">/);
 });
@@ -85,7 +90,7 @@ test("integrates the reference sections into navigation and the homepage", async
   for (const href of ["/glossary", "/comparisons", "/cases", "/resources"]) {
     assert.match(html, new RegExp(`href="${href}"`), href);
   }
-  assert.match(html, /搜索覆盖(?:\s|<!-- -->)*128(?:\s|<!-- -->)*项本地内容/);
+  assert.match(html, /搜索覆盖(?:\s|<!-- -->)*130(?:\s|<!-- -->)*项本地内容/);
 });
 
 test("explains the four learning stages without misstating path length", async () => {
