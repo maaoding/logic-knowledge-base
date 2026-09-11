@@ -141,7 +141,8 @@ test("renders all branches, all 40 entry routes, and all learning paths", async 
   assert.match(formulaHtml, /katex-mathml/);
   assert.match(formulaHtml, /全称量词与存在量词/);
   assert.match(formulaHtml, /去练习站检验本分支/);
-  assert.doesNotMatch(formulaHtml, /property="og:image"/);
+  // 详情页社交卡也携带默认 og 图（textOnlyDetailMetadata 显式引用 /og.png）
+  assert.match(formulaHtml, /property="og:image" content="http:\/\/localhost:3000\/og.png"/);
 });
 
 test("returns the custom 404 for unknown knowledge routes", async () => {
