@@ -81,7 +81,20 @@ export function SearchDialog({
           [entry.title, ...entry.aliases, entry.summary, ...entry.tags, entry.branch].join(" "),
         ).includes(normalizedQuery),
       )
-      .slice(0, 10);
+      .map((entry) => {
+        // 标题命中排最前，其次别名，再次标签/栏目，最后摘要；同级保持目录顺序
+        const score = normalize(entry.title).includes(normalizedQuery)
+          ? 4
+          : normalize(entry.aliases.join(" ")).includes(normalizedQuery)
+            ? 3
+            : normalize([...entry.tags, entry.branch].join(" ")).includes(normalizedQuery)
+              ? 2
+              : 1;
+        return { entry, score };
+      })
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 10)
+      .map((item) => item.entry);
   }, [entries, query]);
 
   // 无直接结果时按字符对重叠度推荐相近内容，避免死胡同

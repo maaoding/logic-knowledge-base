@@ -31,6 +31,10 @@ describe("search dialog", () => {
       expect(document.querySelectorAll("#search-results-listbox [role=option]").length).toBeGreaterThan(0);
     });
     expect(document.querySelectorAll("#search-results-listbox [role=option]").length).toBe(10);
+    // 标题命中的（含术语「归纳」）排在仅摘要命中的（如「类比论证」）之前
+    const titles = [...document.querySelectorAll("#search-results-listbox [role=option] strong")].map((el) => el.textContent);
+    expect(titles.indexOf("归纳")).toBeGreaterThan(-1);
+    expect(titles.indexOf("归纳")).toBeLessThan(titles.indexOf("类比论证"));
 
     fireEvent.keyDown(input, { key: "ArrowDown" });
     fireEvent.keyDown(input, { key: "ArrowDown" });
