@@ -86,6 +86,23 @@ describe("practice application", () => {
     untouched.unmount();
   });
 
+  it("updates the document title for branch and review views", () => {
+    setLocation("?branch=foundations");
+    const { unmount } = render(<App />);
+    expect(document.title).toBe("逻辑基础｜逻辑学分支练习");
+    unmount();
+
+    setLocation("?review=wrong");
+    const rerun = render(<App />);
+    expect(document.title).toBe("错题复习｜逻辑学分支练习");
+    rerun.unmount();
+
+    setLocation("");
+    const landing = render(<App />);
+    expect(document.title).toBe("逻辑学分支练习");
+    landing.unmount();
+  });
+
   it("prevents empty submission, locks the answer, and displays the correct answer and explanation", () => {
     const branch = branches[0];
     const question = getQuestionsByBranch(branch.id)[0];

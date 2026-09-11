@@ -1,5 +1,5 @@
 import { branches, entryManifest, entryPath, getQuestionsByBranch, practiceQuestions, type Branch, type PracticeQuestion } from "@logic/domain";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   buildProgressOverview,
   collectWrongAnswers,
@@ -454,6 +454,15 @@ export function App() {
     document.documentElement.dataset.theme = nextTheme;
     localStorage.setItem("logicPractice.theme", nextTheme);
   }
+
+  // 浏览器历史里区分分支与复习视图，不再一排同名标签
+  useEffect(() => {
+    document.title = reviewParameter === "wrong"
+      ? "错题复习｜逻辑学分支练习"
+      : branch
+        ? `${branch.title}｜逻辑学分支练习`
+        : "逻辑学分支练习";
+  }, [branch, reviewParameter]);
 
   return (
     <>
