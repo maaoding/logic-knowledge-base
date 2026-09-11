@@ -278,6 +278,7 @@ function assertCatalogIntegrity() {
       if (slug === entry.slug) throw new Error(`Entry cannot reference itself: ${entry.slug}`);
       if (!entryBySlug.has(slug)) throw new Error(`Unknown relation ${slug} from ${entry.slug}`);
     }
+    if ((entry.objectives?.length ?? 0) < 2) throw new Error(`Entry ${entry.slug} needs at least two objectives.`);
     for (const formula of entry.formulas ?? []) validateFormula(formula, entry.slug);
     for (const example of entry.workedExamples ?? []) {
       for (const formula of example.formulas ?? []) validateFormula(formula, `${entry.slug}/${example.title}`);
