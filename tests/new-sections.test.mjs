@@ -52,6 +52,8 @@ test("renders argument analysis cases with lenses and open questions", async () 
   assert.equal(response.status, 200);
   const html = await response.text();
   assert.match(html, /论证分析案例/);
+  assert.match(html, /快速跳转/);
+  assert.match(html, /href="#app-review-claim"/);
   assert.match(html, /继续追问/);
   assert.match(html, /九成用户都满意/);
   assert.match(html, /检测准确率 99%/);

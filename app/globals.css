@@ -407,6 +407,38 @@ kbd {
   letter-spacing: 0.07em;
 }
 
+.search-suggestions {
+  margin-top: 4px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.search-suggestions p {
+  margin: 0 0 8px;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.search-suggestions ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 10px;
+}
+
+.search-suggestions a {
+  display: grid;
+  gap: 2px;
+  color: var(--ink-soft);
+}
+
+.search-suggestions strong {
+  color: var(--ink);
+  font-family: var(--font-serif);
+  font-size: 0.95rem;
+}
+
 .search-empty {
   margin: 0;
   padding: 34px 12px;
@@ -2205,6 +2237,36 @@ kbd {
 }
 
 /* 论证分析案例 */
+.case-jump {
+  margin: 34px 0 44px;
+  padding: 16px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.case-jump ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 10px;
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.case-jump a {
+  display: inline-block;
+  padding: 5px 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  color: var(--ink-soft);
+  font-size: 0.8rem;
+}
+
+.case-jump a:hover {
+  border-color: var(--rust);
+  color: var(--rust);
+}
+
 .case-list {
   display: grid;
   gap: 34px;

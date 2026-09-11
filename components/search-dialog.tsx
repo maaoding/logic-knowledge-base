@@ -20,6 +20,12 @@ function normalize(value: string) {
   return value.normalize("NFKC").toLocaleLowerCase("zh-CN").replace(/\s+/g, "");
 }
 
+function bigrams(value: string) {
+  const list: string[] = [];
+  for (let i = 0; i < value.length - 1; i++) list.push(value.slice(i, i + 2));
+  return list.length ? list : [value];
+}
+
 export function SearchDialog({
   searchCount,
   open,
@@ -77,6 +83,25 @@ export function SearchDialog({
       )
       .slice(0, 10);
   }, [entries, query]);
+
+  // 无直接结果时按字符对重叠度推荐相近内容，避免死胡同
+  const suggestions = useMemo(() => {
+    if (!entries || !query || results.length) return [];
+    const nq = normalize(query);
+    const grams = bigrams(nq);
+    const searchable = (entry: SearchRecord) =>
+      normalize([entry.title, ...entry.aliases, entry.summary, ...entry.tags, entry.branch].join(" "));
+    return entries
+      .map((entry) => {
+        const text = searchable(entry);
+        const score = grams.reduce((total, gram) => total + (text.includes(gram) ? 1 : 0), 0);
+        return { entry, score };
+      })
+      .filter((item) => item.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 3)
+      .map((item) => item.entry);
+  }, [entries, query, results.length]);
 
   // 高亮项变化时保持可见；键盘在结果间移动，Enter 走链接的客户端导航
   useEffect(() => {
@@ -191,7 +216,26 @@ export function SearchDialog({
               ))}
             </ul>
           ) : entries ? (
-            <p className="search-empty">没有找到匹配条目。可尝试标题、别名、符号或分支名称。</p>
+            <>
+              <p className="search-empty">没有找到匹配条目。可尝试标题、别名、符号或分支名称。</p>
+              {suggestions.length ? (
+                <div className="search-suggestions">
+                  <p>是否在找：</p>
+                  <ul>
+                    {suggestions.map((entry) => (
+                      <li key={entry.slug}>
+                        <Link href={entry.path} onClick={closeDialog}>
+                          <span className="search-result-meta">
+                            {entry.branch} · {kindLabels[entry.kind]}
+                          </span>
+                          <strong>{entry.title}</strong>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+            </>
           ) : (
             <p className="search-empty">正在加载本地目录…</p>
           )}
