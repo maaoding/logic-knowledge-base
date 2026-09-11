@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "katex/dist/katex.min.css";
 import { SiteFooter } from "../components/site-footer";
 import { SiteHeader } from "../components/site-header";
-import { searchIndex } from "../lib/catalog";
+import { searchIndex } from "../lib/search-data";
 import { practiceSiteUrl, siteUrl } from "../lib/site-links";
 import "./globals.css";
 
@@ -57,7 +57,7 @@ export default function RootLayout({
         <a className="skip-link" href="#main-content">
           跳到正文
         </a>
-        <SiteHeader searchEntries={searchIndex} practiceUrl={practiceSiteUrl()} />
+        <SiteHeader searchCount={searchIndex.length} practiceUrl={practiceSiteUrl()} />
         {children}
         <SiteFooter />
       </body>

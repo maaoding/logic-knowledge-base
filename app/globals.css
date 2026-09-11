@@ -383,7 +383,8 @@ kbd {
   padding: 13px 8px;
 }
 
-.search-results a:hover {
+.search-results a:hover,
+.search-results a.is-active {
   background: var(--paper-soft);
 }
 

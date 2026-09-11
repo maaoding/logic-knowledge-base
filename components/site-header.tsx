@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import type { SearchRecord } from "../lib/catalog";
 import { SearchDialog } from "./search-dialog";
 
 const navGroups = [
@@ -43,7 +42,7 @@ const navGroups = [
   },
 ] as const;
 
-export function SiteHeader({ searchEntries, practiceUrl }: { searchEntries: SearchRecord[]; practiceUrl: string }) {
+export function SiteHeader({ searchCount, practiceUrl }: { searchCount: number; practiceUrl: string }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [openGroup, setOpenGroup] = useState<string | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -177,7 +176,7 @@ export function SiteHeader({ searchEntries, practiceUrl }: { searchEntries: Sear
           </div>
         </div>
       </header>
-      <SearchDialog entries={searchEntries} open={searchOpen} onClose={() => setSearchOpen(false)} />
+      <SearchDialog searchCount={searchCount} open={searchOpen} onClose={() => setSearchOpen(false)} />
     </>
   );
 }

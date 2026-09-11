@@ -21,22 +21,37 @@ function normalize(value: string) {
 }
 
 export function SearchDialog({
-  entries,
+  searchCount,
   open,
   onClose,
 }: {
-  entries: SearchRecord[];
+  searchCount: number;
   open: boolean;
   onClose: () => void;
 }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const optionRefs = useRef<(HTMLAnchorElement | null)[]>([]);
   const [query, setQuery] = useState("");
+  const [activeIndex, setActiveIndex] = useState(-1);
+  // 索引记录不随页面下发：打开搜索后按需加载本地目录
+  const [entries, setEntries] = useState<SearchRecord[] | null>(null);
 
   function closeDialog() {
     setQuery("");
+    setActiveIndex(-1);
     onClose();
   }
+
+  useEffect(() => {
+    let active = true;
+    import("../lib/search-data").then((mod) => {
+      if (active) setEntries(mod.searchIndex);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -52,7 +67,7 @@ export function SearchDialog({
 
   const results = useMemo(() => {
     const normalizedQuery = normalize(query);
-    if (!normalizedQuery) return [];
+    if (!normalizedQuery || !entries) return [];
 
     return entries
       .filter((entry) =>
@@ -62,6 +77,33 @@ export function SearchDialog({
       )
       .slice(0, 10);
   }, [entries, query]);
+
+  // 高亮项变化时保持可见；键盘在结果间移动，Enter 走链接的客户端导航
+  useEffect(() => {
+    optionRefs.current[activeIndex]?.scrollIntoView({ block: "nearest" });
+  }, [activeIndex]);
+
+  function moveActive(delta: 1 | -1) {
+    if (!results.length) return;
+    setActiveIndex((current) => {
+      if (current < 0) return delta === 1 ? 0 : results.length - 1;
+      const next = current + delta;
+      return next < 0 ? results.length - 1 : next >= results.length ? 0 : next;
+    });
+  }
+
+  function handleInputKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      moveActive(1);
+    } else if (event.key === "ArrowUp") {
+      event.preventDefault();
+      moveActive(-1);
+    } else if (event.key === "Enter" && activeIndex >= 0 && results[activeIndex]) {
+      event.preventDefault();
+      optionRefs.current[activeIndex]?.click();
+    }
+  }
 
   return (
     <dialog
@@ -98,9 +140,18 @@ export function SearchDialog({
             ref={inputRef}
             type="search"
             value={query}
-            onChange={(event) => setQuery(event.target.value)}
+            onChange={(event) => {
+              setQuery(event.target.value);
+              setActiveIndex(-1);
+            }}
+            onKeyDown={handleInputKeyDown}
             placeholder="试试“有效性”“∀”或“墨家”"
             autoComplete="off"
+            role="combobox"
+            aria-expanded="true"
+            aria-controls="search-results-listbox"
+            aria-autocomplete="list"
+            aria-activedescendant={activeIndex >= 0 ? `search-option-${activeIndex}` : undefined}
           />
           <kbd>Esc</kbd>
         </label>
@@ -112,13 +163,24 @@ export function SearchDialog({
         <div className="search-results">
           {!query ? (
             <p className="search-empty">
-              搜索覆盖 {entries.length} 项本地内容，包括知识条目、术语、对照、案例与资源；输入内容不会上传。
+              搜索覆盖 {searchCount} 项本地内容，包括知识条目、术语、对照、案例与资源；输入内容不会上传。
             </p>
           ) : results.length ? (
-            <ul>
-              {results.map((entry) => (
-                <li key={entry.slug}>
-                  <Link href={entry.path} onClick={closeDialog}>
+            <ul id="search-results-listbox" role="listbox" aria-label="搜索结果">
+              {results.map((entry, index) => (
+                <li key={entry.slug} role="presentation">
+                  <Link
+                    href={entry.path}
+                    ref={(node) => {
+                      optionRefs.current[index] = node;
+                    }}
+                    id={`search-option-${index}`}
+                    role="option"
+                    aria-selected={index === activeIndex}
+                    onClick={closeDialog}
+                    onMouseEnter={() => setActiveIndex(index)}
+                    className={index === activeIndex ? "is-active" : undefined}
+                  >
                     <span className="search-result-meta">
                       {entry.branch} · {kindLabels[entry.kind]}
                     </span>
@@ -128,8 +190,10 @@ export function SearchDialog({
                 </li>
               ))}
             </ul>
-          ) : (
+          ) : entries ? (
             <p className="search-empty">没有找到匹配条目。可尝试标题、别名、符号或分支名称。</p>
+          ) : (
+            <p className="search-empty">正在加载本地目录…</p>
           )}
         </div>
       </div>
