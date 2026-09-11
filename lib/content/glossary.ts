@@ -142,6 +142,8 @@ export const glossaryTerms: GlossaryTerm[] = [
     aliases: ["interpretation"],
     definition:
       "把形式语言的非逻辑符号落实为具体语义的安排：论域是什么、每个谓词对应哪个集合、每个常项指哪个对象、命题变元取什么真值。同一串公式在不同解释下真值可以不同。",
+    confusion:
+      "形式语义的“解释”不是日常的解释一件事：它不说明成因，只给符号指定语义。也别把解释与论证对立混用——论证为接受主张提供理由，解释则假定结果已知、追问为什么发生，两者的评价标准不同。",
     seeAlso: ["predicate-language", "quantifiers"],
   },
   {
@@ -208,6 +210,8 @@ export const glossaryTerms: GlossaryTerm[] = [
     aliases: ["modus ponens"],
     definition:
       "基本有效推理形式：P→Q 且 P，推出 Q。它是自然演绎里使用频率最高的规则之一。",
+    confusion:
+      "与谬误“肯定后件”只差一端：P→Q 加 P 推 Q 有效；P→Q 加 Q 推 P 无效。检查时先确认肯定的是条件句的前件还是后件，别被语序变化骗到。",
     seeAlso: ["natural-deduction", "material-implication"],
   },
   {
@@ -245,6 +249,8 @@ export const glossaryTerms: GlossaryTerm[] = [
     aliases: ["domain of discourse", "个体域"],
     definition:
       "量化语句谈论的对象全体，量词只在这个集合上取值。同一个 ∀x Fx，把论域从“本班学生”换成“所有人”，真值可能整个翻转。",
+    confusion:
+      "论域是约定而不是事实：同一个量化句换一个论域，真值可能翻转，混用论域是量化推理最常见的隐性错误。也别把论域与谓词的适用范围混为一谈——论域圈定量化的对象，谓词再在其中划分子集。",
     seeAlso: ["quantifiers", "predicate-language", "multiple-quantification"],
   },
   {
@@ -284,6 +290,8 @@ export const glossaryTerms: GlossaryTerm[] = [
     aliases: ["model"],
     definition:
       "使一组公式全部为真的解释：一个论域加上对各符号的具体语义安排。“理论有模型”即至少存在这样一种使它自洽的实现；找不到模型的公式组就不一致。",
+    confusion:
+      "“有模型”只说明理论自洽可满足，不说明它正确描述现实——模型可以是被人为构造的抽象结构。命题逻辑的模型常退化为一张赋值表，谓词逻辑的模型还必须给出论域与谓词释义，两种用法别混。",
     seeAlso: ["predicate-language", "truth-validity-soundness"],
   },
   {
@@ -398,6 +406,8 @@ export const glossaryTerms: GlossaryTerm[] = [
     aliases: ["deduction"],
     definition:
       "以“前提全真时结论必然为真”为目标的推理，从规则到事实、从定义到实例都是它的常态。它与归纳的分界不在方向，而在承诺：不允许前提真时结论有例外。评价演绎用有效与健全。",
+    confusion:
+      "日常汉语的“演绎”常指铺陈发挥（如“演绎一段传奇”），与逻辑评价无关；推导是写出证明的动作，演绎推理的好坏由支持强度决定，别把三者混为一谈。",
     seeAlso: ["deduction-and-induction", "truth-validity-soundness", "natural-deduction"],
   },
   {
@@ -441,6 +451,8 @@ export const glossaryTerms: GlossaryTerm[] = [
     aliases: ["truth function"],
     definition:
       "整体真值完全由成分命题真值决定的函数，五个常用联结词都是真值函数。算 P∧Q 的真假不需要知道 P、Q 具体说了什么。",
+    confusion:
+      "量词表达式不在其列：∀x Fx 的真假不由 Fx 对单个对象的真值决定，而取决于论域中全部对象，因此含量词的推理不能只做联结词演算。",
     seeAlso: ["propositional-language", "truth-tables"],
   },
   {
