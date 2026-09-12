@@ -11,7 +11,7 @@ beforeEach(() => {
 afterEach(() => cleanup());
 
 function renderHeader() {
-  return render(<SiteHeader searchCount={135} practiceUrl="http://localhost:3001/" />);
+  return render(<SiteHeader searchCount={149} practiceUrl="http://localhost:3001/" />);
 }
 
 function dialogOpen() {
@@ -45,7 +45,7 @@ describe("site header", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /搜索/ }));
     expect(dialogOpen()).toBe(true);
-    expect(screen.getByText(/搜索覆盖 135 项本地内容/)).toBeTruthy();
+    expect(screen.getByText(/搜索覆盖 149 项本地内容/)).toBeTruthy();
 
     fireEvent.click(screen.getByRole("button", { name: "关闭搜索" }));
     expect(dialogOpen()).toBe(false);

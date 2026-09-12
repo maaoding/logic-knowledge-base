@@ -198,8 +198,8 @@ function validateFormula(formula: Formula, owner: string) {
 function assertCatalogIntegrity() {
   if (contentRecords.length !== entryManifest.length) throw new Error(`Expected ${entryManifest.length} content records, found ${contentRecords.length}.`);
   if (contentBySlug.size !== contentRecords.length) throw new Error("Content slugs must be unique.");
-  if (knowledgeEntries.length !== 40) throw new Error(`Expected 40 knowledge entries, found ${knowledgeEntries.length}.`);
-  if (learningPaths.length !== 4) throw new Error(`Expected 4 learning paths, found ${learningPaths.length}.`);
+  if (knowledgeEntries.length !== 44) throw new Error(`Expected 44 knowledge entries, found ${knowledgeEntries.length}.`);
+  if (learningPaths.length !== 6) throw new Error(`Expected 6 learning paths, found ${learningPaths.length}.`);
 
   for (const content of contentRecords) {
     if (!entryManifest.some((entry) => entry.slug === content.slug)) throw new Error(`Content has no manifest entry: ${content.slug}`);
@@ -217,7 +217,7 @@ function assertCatalogIntegrity() {
     }
   }
 
-  const expectedPathLengths = [8, 9, 9, 10];
+  const expectedPathLengths = [8, 9, 9, 10, 11, 9];
   const pathSlugs = new Set<string>();
   for (const [pathIndex, path] of learningPaths.entries()) {
     if (pathSlugs.has(path.slug)) throw new Error(`Duplicate learning path slug: ${path.slug}`);

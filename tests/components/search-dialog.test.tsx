@@ -10,7 +10,7 @@ beforeEach(() => {
 afterEach(() => cleanup());
 
 function renderOpen(onClose = vi.fn()) {
-  render(<SearchDialog searchCount={135} open onClose={onClose} />);
+  render(<SearchDialog searchCount={149} open onClose={onClose} />);
   return onClose;
 }
 
@@ -20,7 +20,7 @@ describe("search dialog", () => {
     const dialog = document.querySelector("dialog.search-dialog") as HTMLDialogElement | null;
     expect(dialog?.open).toBe(true);
     await waitFor(() => expect(document.activeElement).toBe(document.querySelector(".search-field input")));
-    expect(screen.getByText(/搜索覆盖 135 项本地内容/)).toBeTruthy();
+    expect(screen.getByText(/搜索覆盖 149 项本地内容/)).toBeTruthy();
   });
 
   it("filters records and moves the highlight with arrow keys before Enter closes via the result link", async () => {

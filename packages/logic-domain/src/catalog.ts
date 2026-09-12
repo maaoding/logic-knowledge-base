@@ -36,6 +36,7 @@ export const entryManifest: EntryManifest[] = [
   { slug: "necessity-possibility", kind: "concepts", branchId: "modal", title: "必然与可能", aliases: ["模态词", "necessity", "possibility"], summary: "□P 表示 P 必然为真，◇P 表示 P 可能为真；二者可通过否定互相定义。", tags: ["模态逻辑", "必然", "可能"] },
   { slug: "possible-worlds-semantics", kind: "systems", branchId: "modal", title: "可能世界与可及关系", aliases: ["Kripke semantics", "possible worlds"], summary: "可能世界语义用世界之间的可及关系解释必然和可能的真值条件。", tags: ["可能世界", "可及关系", "Kripke"] },
   { slug: "modal-scope", kind: "concepts", branchId: "modal", title: "模态辖域与常见混淆", aliases: ["模态范围", "de re", "de dicto"], summary: "模态算子的辖域会改变句义；事实为真、必然为真和对象必然具有性质不可混同。", tags: ["模态辖域", "必然化", "范围"] },
+  { slug: "normal-modal-systems", kind: "systems", branchId: "modal", title: "正规模态系统：从 K 到 S5", aliases: ["正规模态", "K 系统", "S4", "S5", "normal modal logic"], summary: "在 Kripke 语义上给可及关系加条件，就得到 K、T、S4、S5 等强弱不同的正规模态系统。", tags: ["正规系统", "框架条件", "模态公理"] },
 
   { slug: "inductive-strength", kind: "concepts", branchId: "inductive", title: "归纳强度与归纳健全性", aliases: ["强归纳论证", "cogency"], summary: "归纳论证不保证结论，而是让结论在前提为真时获得较高可信度。", tags: ["归纳", "概率", "证据"] },
   { slug: "enumerative-induction", kind: "methods", branchId: "inductive", title: "枚举归纳", aliases: ["简单枚举", "enumerative induction"], summary: "根据样本中观察到的规律，推测总体或尚未观察个体也具有该性质。", tags: ["样本", "总体", "归纳"] },
@@ -54,14 +55,17 @@ export const entryManifest: EntryManifest[] = [
   { slug: "proof-and-derivability", kind: "concepts", branchId: "mathematical", title: "形式证明与可推导性", aliases: ["形式推导", "derivability", "proof"], summary: "形式证明是在明确公理和规则下构造的有限符号序列，可推导性记录这种语法关系。", tags: ["证明论", "可推导性", "形式系统"] },
   { slug: "soundness-completeness", kind: "concepts", branchId: "mathematical", title: "可靠性与完全性", aliases: ["健全性与完备性", "soundness and completeness"], summary: "可靠性保证可证明的式子在语义上成立；完全性保证语义后承能够被系统证明。", tags: ["证明论", "模型论", "元逻辑"] },
   { slug: "godel-incompleteness", kind: "concepts", branchId: "mathematical", title: "哥德尔不完全性定理", aliases: ["不完备性定理", "Gödel incompleteness"], summary: "足够强、有效公理化且一致的算术理论，不能在自身内部判定所有算术命题。", tags: ["哥德尔", "不完全性", "算术理论"] },
+  { slug: "computability", kind: "concepts", branchId: "mathematical", title: "可计算性与可判定性", aliases: ["可计算性", "停机问题", "computability", "decidability"], summary: "图灵机刻画“机械可算”的精确含义；停机问题不可判定，划出机器可解问题的边界。", tags: ["可计算性", "停机问题", "丘奇-图灵论题"] },
 
   { slug: "logical-consequence-pluralism", kind: "concepts", branchId: "philosophical", title: "逻辑后承与逻辑多元主义", aliases: ["逻辑多元论", "logical pluralism"], summary: "哲学逻辑追问结论由前提必然推出意味着什么，以及是否只有一种正确刻画。", tags: ["逻辑后承", "经典逻辑", "多元主义"] },
   { slug: "classical-and-intuitionistic", kind: "systems", branchId: "philosophical", title: "经典逻辑与直觉主义逻辑", aliases: ["直觉主义逻辑", "intuitionistic logic"], summary: "直觉主义逻辑把真与构造性证明联系起来，因而不普遍接受经典排中律和双重否定消去。", tags: ["经典逻辑", "直觉主义", "排中律"] },
   { slug: "relevant-and-paraconsistent", kind: "systems", branchId: "philosophical", title: "相关逻辑与次协调逻辑", aliases: ["相干逻辑", "relevance logic", "paraconsistent logic"], summary: "相关逻辑要求前提与结论具有实质联系，次协调逻辑则阻止矛盾推出任意结论。", tags: ["相关逻辑", "次协调逻辑", "爆炸原理"] },
+  { slug: "many-valued-logic", kind: "systems", branchId: "philosophical", title: "多值逻辑：在真与假之外", aliases: ["多值逻辑", "三值逻辑", "many-valued logic", "K3", "Łukasiewicz"], summary: "为未来偶然、模糊与无意义等情形引入中间真值，三值逻辑仍有精确的赋值与后承规则。", tags: ["多值逻辑", "三值", "真值间隙"] },
 
   { slug: "mohist-logic", kind: "history", branchId: "history", title: "墨家与后期墨家论辩", aliases: ["墨辩", "墨经", "Mohist Canons"], summary: "《墨经》及相关篇章讨论名、实、同异、故与推类，保存了中国古代系统论辩的重要材料。", tags: ["中国逻辑史", "墨家", "名实"] },
   { slug: "nyaya", kind: "history", branchId: "history", title: "印度正理派的五支论式", aliases: ["正理派", "Nyāya", "五支作法"], summary: "正理派把推论放在知识来源与论辩程序中考察，经典论式常以五个环节呈现。", tags: ["印度逻辑史", "正理派", "推论"] },
   { slug: "aristotle", kind: "history", branchId: "history", title: "亚里士多德与三段论体系", aliases: ["Aristotle", "工具论"], summary: "亚里士多德首次系统研究哪些三段论形式能让结论必然由前提推出。", tags: ["希腊逻辑史", "三段论", "演绎"] },
+  { slug: "medieval-logic", kind: "history", branchId: "history", title: "中世纪逻辑：词项与推论", aliases: ["中世纪逻辑", "medieval logic", "指代理论"], summary: "中世纪大学把亚里士多德逻辑发展为词项指代、推论与悖论研究的高峰，为现代逻辑保留了技术积累。", tags: ["中世纪", "指代理论", "推论学说"] },
   { slug: "frege", kind: "history", branchId: "history", title: "弗雷格与现代逻辑的转折", aliases: ["Gottlob Frege", "概念文字"], summary: "1879 年《概念文字》以函数、论元和量化表达关系推理，成为现代逻辑的重要转折。", tags: ["现代逻辑史", "弗雷格", "量词"] },
   { slug: "hilbert-godel-metalogic", kind: "history", branchId: "history", title: "希尔伯特、哥德尔与元逻辑转向", aliases: ["Hilbert", "Gödel", "元数学"], summary: "希尔伯特纲领把形式系统本身变成研究对象，哥德尔的结果则揭示这种研究的力量与边界。", tags: ["希尔伯特", "哥德尔", "元逻辑"] },
 ];

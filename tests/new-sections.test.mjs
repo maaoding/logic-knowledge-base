@@ -27,6 +27,9 @@ test("renders the glossary with definitions and entry links", async () => {
   assert.match(html, /易混提示/);
   assert.match(html, /href="\/concepts\/argument-structure"/);
   assert.match(html, /id="term-有效性"/);
+  assert.match(html, /id="term-红鲱鱼"/);
+  assert.match(html, /id="term-循环论证"/);
+  assert.match(html, /用“经书无误”证明神存在/);
 });
 
 test("renders concept comparisons with shared, difference and watch fields", async () => {
@@ -43,8 +46,12 @@ test("renders concept comparisons with shared, difference and watch fields", asy
   // 对照标题的可见文本是“左标签 vs 右标签”（“与”仅存在于 sr-only）
   assert.match(html, /id="provability-vs-truth-title"/);
   assert.match(html, /id="classical-vs-intuitionistic-consequence-title"/);
+  assert.match(html, /id="syntax-vs-semantics-title"/);
+  assert.match(html, /id="consistency-vs-completeness-title"/);
   assert.match(html, /存在为真却不可证明的算术命题/);
   assert.match(html, /排中律 P∨¬P 不再是定理/);
+  assert.match(html, /拿出一列推导是语法，拿出模型分析是语义/);
+  assert.match(html, /查一致性找“双双可证”/);
   assert.match(html, /aria-labelledby="contradictory-vs-contrary-title"/);
   assert.match(html, /<h2 class="comparison-pair" id="contradictory-vs-contrary-title">/);
 });
@@ -70,6 +77,11 @@ test("renders argument analysis cases with lenses and open questions", async () 
   assert.match(html, /id="no-complaints-records"/);
   assert.match(html, /id="praised-a-finalist"/);
   assert.match(html, /id="smoke-on-the-mountain"/);
+  assert.match(html, /id="possibility-excuse"/);
+  assert.match(html, /id="no-standard-answer"/);
+  assert.match(html, /我只是说有可能/);
+  assert.match(html, /这句话当时排除了哪些情形/);
+  assert.match(html, /没有唯一答案不等于没有对错/);
   assert.match(html, /有效但前提假，结论照样不可靠/);
   assert.match(html, /量词顺序一换，承诺强度整个改变/);
   assert.match(html, /凡冒烟之处皆有燃烧/);
@@ -108,7 +120,7 @@ test("integrates the reference sections into navigation and the homepage", async
   for (const href of ["/glossary", "/comparisons", "/cases", "/resources"]) {
     assert.match(html, new RegExp(`href="${href}"`), href);
   }
-  assert.match(html, /搜索覆盖(?:\s|<!-- -->)*135(?:\s|<!-- -->)*项本地内容/);
+  assert.match(html, /搜索覆盖(?:\s|<!-- -->)*149(?:\s|<!-- -->)*项本地内容/);
 });
 
 test("explains the four learning stages without misstating path length", async () => {
@@ -126,6 +138,58 @@ test("shows prerequisite guidance before advanced learning paths", async () => {
   assert.match(html, /开始前建议/);
   assert.match(html, /href="\/concepts\/truth-validity-soundness"/);
   assert.match(html, /真值、有效性与健全性/);
+});
+
+test("presents the two new learning paths with steps, prerequisites and companions", async () => {
+  const [formalResponse, historyResponse] = await Promise.all([
+    render("/paths/formal-systems-tour"),
+    render("/paths/logic-across-civilizations"),
+  ]);
+  assert.equal(formalResponse.status, 200);
+  const formalHtml = await formalResponse.text();
+  assert.match(formalHtml, /形式系统进阶/);
+  assert.match(formalHtml, /开始前建议/);
+  assert.match(formalHtml, /href="\/systems\/normal-modal-systems"/);
+  assert.match(formalHtml, /href="\/concepts\/computability"/);
+  assert.match(formalHtml, /配套速查/);
+
+  assert.equal(historyResponse.status, 200);
+  const historyHtml = await historyResponse.text();
+  assert.match(historyHtml, /逻辑的文明史/);
+  assert.match(historyHtml, /href="\/history\/medieval-logic"/);
+  assert.match(historyHtml, /href="\/history\/mohist-logic"/);
+  assert.match(historyHtml, /配套速查/);
+});
+
+test("renders the four new entries with their signature content", async () => {
+  const [modalResponse, computabilityResponse, manyValuedResponse, medievalResponse] = await Promise.all([
+    render("/systems/normal-modal-systems"),
+    render("/concepts/computability"),
+    render("/systems/many-valued-logic"),
+    render("/history/medieval-logic"),
+  ]);
+
+  for (const response of [modalResponse, computabilityResponse, manyValuedResponse, medievalResponse]) {
+    assert.equal(response.status, 200);
+  }
+
+  const modalHtml = await modalResponse.text();
+  assert.match(modalHtml, /正规模态系统/);
+  assert.match(modalHtml, /katex-mathml/);
+  assert.match(modalHtml, /必然化规则有严格的适用范围/);
+  assert.match(modalHtml, /所属路径/);
+
+  const computabilityHtml = await computabilityResponse.text();
+  assert.match(computabilityHtml, /可计算性与可判定性/);
+  assert.match(computabilityHtml, /两个方向都撞墙，唯一的出路是 H 根本不存在/);
+
+  const manyValuedHtml = await manyValuedResponse.text();
+  assert.match(manyValuedHtml, /多值逻辑/);
+  assert.match(manyValuedHtml, /K3 没有重言式/);
+
+  const medievalHtml = await medievalResponse.text();
+  assert.match(medievalHtml, /中世纪逻辑/);
+  assert.match(medievalHtml, /指代（suppositio）学说/);
 });
 
 test("links each path step to companion comparisons, cases and glossary terms", async () => {

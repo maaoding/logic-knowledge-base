@@ -122,6 +122,24 @@ export const glossaryTerms: GlossaryTerm[] = [
     seeAlso: ["deduction-and-induction", "inductive-strength", "enumerative-induction"],
   },
   {
+    term: "红鲱鱼",
+    aliases: ["red herring"],
+    definition:
+      "用看似相关、实则跑题的话题把讨论引离原问题的手法：对方批评服务质量，回应却在展示销量——销量再好也碰不到服务质量本身。",
+    confusion:
+      "与稻草人分工：稻草人歪曲对方的论点再攻击歪曲后的版本，红鲱鱼干脆换一个话题。检验办法是把回应与原问题并排：回应若没有触及原论点的任何前提或结论，就是红鲱鱼。",
+    seeAlso: ["straw-man", "burden-of-proof", "argument-mapping"],
+  },
+  {
+    term: "滑坡谬误",
+    aliases: ["slippery slope"],
+    definition:
+      "断言“一旦允许第一步，就会一路滑向灾难性终点”却省略各环节的论证。链条式警告本身不是谬误：逐环给出支持，它就是普通的连锁推理。",
+    confusion:
+      "别把“指出滑坡谬误”当成“连锁后果都不可能”：被驳倒的是“未经支持地断定全链会发生”，不是“终点不会发生”。检验办法是逐环追问“凭什么这一步会引发下一步”，站得住的环节保留，站不住的环节打断。",
+    seeAlso: ["causal-misreasoning", "false-dilemma"],
+  },
+  {
     term: "健全性",
     aliases: ["soundness", "可靠性"],
     definition:
@@ -161,6 +179,15 @@ export const glossaryTerms: GlossaryTerm[] = [
     definition:
       "Kripke 语义中世界之间的“哪些情形与当前评价相关”关系；□P 与 ◇P 都按可及范围内的世界计算真值。对可及关系施加自反、传递等条件，就得到不同的模态系统。",
     seeAlso: ["possible-worlds-semantics", "necessity-possibility"],
+  },
+  {
+    term: "可满足性",
+    aliases: ["satisfiability", "SAT"],
+    definition:
+      "存在至少一个解释使公式为真的性质。P∧¬P 不可满足，P∨¬P 恒可满足；命题逻辑里求一个成真赋值的问题就是可满足性问题。",
+    confusion:
+      "可满足不等于有效：有效要求所有解释下都真，可满足只要一个成真解释。对偶口诀：一个公式不可满足，当且仅当它的否定有效。",
+    seeAlso: ["truth-tables", "soundness-completeness"],
   },
   {
     term: "可靠性定理",
@@ -320,6 +347,15 @@ export const glossaryTerms: GlossaryTerm[] = [
     seeAlso: ["argument-structure", "argument-mapping"],
   },
   {
+    term: "丘奇-图灵论题",
+    aliases: ["Church-Turing thesis"],
+    definition:
+      "把直观的“机械可算”对齐到图灵机可算的论题。图灵机给出精确的数学定义，论题宣称一切有效方法都由它刻画；它是论题而非定理，无法在形式系统内部证明。",
+    confusion:
+      "别把论题与定理混同：停机问题不可判定是定理，图灵机足以刻画一切机械计算是论题——后者的证据是所有合理形式化（递归函数、λ 演算等）被证明彼此等价。",
+    seeAlso: ["computability", "godel-incompleteness", "hilbert-godel-metalogic"],
+  },
+  {
     term: "全称量词",
     aliases: ["universal quantifier", "∀"],
     definition:
@@ -386,11 +422,29 @@ export const glossaryTerms: GlossaryTerm[] = [
     seeAlso: ["categorical-syllogism", "categorical-propositions"],
   },
   {
+    term: "幸存者偏差",
+    aliases: ["survivorship bias"],
+    definition:
+      "只统计通过筛选的对象造成样本系统性失真的偏差。经典例子：统计返航轰炸机的弹孔想加固中弹部位，正确答案却藏在看不到的数据里——弹着于要害的飞机根本没能返航。",
+    confusion:
+      "样本再大也救不了筛选造成的偏：识别标志是追问数据从哪来。若只有“成功、存活、仍在使用”的对象有机会进入统计，失败样本已被系统性扣除，统计再精确也代表不了总体。",
+    seeAlso: ["enumerative-induction", "inference-to-best-explanation"],
+  },
+  {
     term: "形式系统",
     aliases: ["formal system"],
     definition:
       "由初始符号、形成规则、公理与推理规则共同定义的语言加推导装置。对系统本身还能再问一致性、完全性、可判定性，这类研究叫元逻辑。",
     seeAlso: ["proof-and-derivability", "hilbert-godel-metalogic", "godel-incompleteness"],
+  },
+  {
+    term: "循环论证",
+    aliases: ["circular reasoning", "begging the question"],
+    definition:
+      "把待证的结论（或离开结论便无法成立的前提）塞进论证起点的论证：“这本书说的都是真的，因为书里每句话都这么写。”形式上可以无懈可击，支持力为零。",
+    confusion:
+      "循环有明暗两种：明循环是前提复述结论，暗循环是两个前提互为对方的唯一依据——用“经书无误”证明神存在，再用神存在证明经书无误。检验办法是逐个前提问“它能否独立于结论成立”；另外别把它与“前提本身未被证明”混同，一切论证总得有不更进一步的前提。",
+    seeAlso: ["argument-structure", "burden-of-proof", "argument-mapping"],
   },
   {
     term: "严格蕴涵",

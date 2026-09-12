@@ -269,6 +269,18 @@ export const practiceQuestions: PracticeQuestion[] = [
     correctOptionIds: ["a"],
     explanation: "□ 是全称检查：可及世界集合为空时没有反例可找，□P 空真；◇ 是存在检查：找不到满足 P 的可及世界，◇P 为假。b 把“没有核实对象”读成了方向相反的保证；c 让全称与存在在空集上取了相同的值；两句的取值由量词结构与空可及集完全决定，与 P 无关，d 不对。",
   },
+  {
+    id: "modal-5", branchId: "modal", entrySlug: "normal-modal-systems", kind: "single",
+    prompt: "系统 K 的公理在所有 Kripke 框架上有效。要让 T 公理 □P→P 也在每个世界的赋值下成立，需要给可及关系加什么条件？",
+    options: [
+      { id: "a", text: "自反：每个世界可及自身" },
+      { id: "b", text: "传递：可及关系可以逐步传递" },
+      { id: "c", text: "对称：可及关系可以往返" },
+      { id: "d", text: "无需条件，□P→P 在 K 中已是定理" },
+    ],
+    correctOptionIds: ["a"],
+    explanation: "□P 要求 P 在所有可及世界中为真；只有当当前世界可及自身（自反）时，这组世界才涵盖当前世界，□P→P 才对所有赋值成立。传递对应 4 公理 □P→□□P，对称对应 B 公理 P→□◇P；d 错在把“K 在一切框架上有效”误当成“一切公式在一切框架上有效”。",
+  },
 
   {
     id: "inductive-1", branchId: "inductive", entrySlug: "inductive-strength", kind: "single",
@@ -488,6 +500,18 @@ export const practiceQuestions: PracticeQuestion[] = [
     correctOptionIds: ["a"],
     explanation: "完全性把 ⊨ 兑换成 ⊢：语义有效式都有形式证明，但定理只承诺证明存在，不给出构造，写出它仍需自己的工作。可证性相对系统而言，一致的系统未必收录足以推出全部经典有效式的规则，b 不成立；c 把语义有效当成了证明本身，混用了由规则手册与由模型分别决定的两个符号；完全性也不等于可判定性，d 混淆了证明的存在性与机械判定。",
   },
+  {
+    id: "mathematical-5", branchId: "mathematical", entrySlug: "computability", kind: "single",
+    prompt: "停机问题被证明不可判定。这个结果的准确含义是什么？",
+    options: [
+      { id: "a", text: "不存在一个程序，能对每个程序与输入的组合都正确判定它是否停机" },
+      { id: "b", text: "任何程序都无法判断自己会不会停机" },
+      { id: "c", text: "图灵机算不了非数值问题" },
+      { id: "d", text: "有些程序停不停机既不真也不假" },
+    ],
+    correctOptionIds: ["a"],
+    explanation: "不可判定否定的是“对所有输入都正确的单一判定程序”的存在；对具体程序（如固定次数循环），停机当然可以确定，b 过强。c 与事实相反，图灵机可处理编码后的任何离散问题；d 混淆了算法边界与真理边界——每个具体情形要么停机要么不停机，答案确定存在，只是没有统一算法可求。",
+  },
 
   {
     id: "philosophical-1", branchId: "philosophical", entrySlug: "logical-consequence-pluralism", kind: "single",
@@ -536,6 +560,18 @@ export const practiceQuestions: PracticeQuestion[] = [
     ],
     correctOptionIds: ["b"],
     explanation: "后承关系由案例概念决定：经典赋值不允许矛盾情境，按“不存在反例即有效”爆炸成立；次协调情境专门保留矛盾，它就构成反例。双方在各自问题域内都没有计算错误，正确的顺序是先写清案例概念，再判断分歧落在案例层还是计算层。c 走向另一极端——可并立的多元有下限，不满足一般性、形式性与规范性的规则堆不进入比较；d 把有待检查的案例层问题直接当成前提，恰恰是应该先追问的那一层。",
+  },
+  {
+    id: "philosophical-5", branchId: "philosophical", entrySlug: "many-valued-logic", kind: "single",
+    prompt: "在强克林三值逻辑 K3 中，原子命题 P 取第三值 I（未定）。按强克林规则，P∨¬P 取什么值？",
+    options: [
+      { id: "a", text: "真：经典排中律仍然成立" },
+      { id: "b", text: "未定：P 与 ¬P 都未定，析取随之未定" },
+      { id: "c", text: "假：P 与 ¬P 都不真" },
+      { id: "d", text: "K3 不允许原子命题取未定值" },
+    ],
+    correctOptionIds: ["b"],
+    explanation: "强克林规则把 I 排在 F 与 T 之间：¬I=I，I∨I=I，所以 P∨¬P 恰好取不到真值。这正是 K3 的代价：任何公式在所有原子都取 I 的赋值下都取 I，因此 K3 没有重言式。a 把经典结论照搬进三值语义；c 是二值逻辑对“两边都不真”的处理，K3 不归约；d 与 K3 的定义相反。",
   },
 
   {
@@ -609,6 +645,18 @@ export const practiceQuestions: PracticeQuestion[] = [
     ],
     correctOptionIds: ["b", "c"],
     explanation: "对照前先问各自传统用论证完成什么任务：三段论关心前提给定时结论的必然性，五支要交代理由、呈现遍充并应用到眼前事例，功能不同结构自然不同，b 正确；喻与合分别承担呈现一般联系与接回当前对象的功能，缺了它们“因”就退化为孤立观察，c 正确。a 按演绎有效性的单一标准给原传统打分，评的是翻译后的重构而非原传统；d 错在后半句——重写是我们的翻译，不是原传统的自我理解。",
+  },
+  {
+    id: "history-7", branchId: "history", entrySlug: "medieval-logic", kind: "single",
+    prompt: "中世纪逻辑学家研究“指代”（suppositio）：词项在命题中替什么说话。这门学说主要用来做什么？",
+    options: [
+      { id: "a", text: "解释同一词项在不同命题中代入的对象范围不同，从而检测谬误" },
+      { id: "b", text: "确定拉丁语名词的性数格变化" },
+      { id: "c", text: "把一切三段论化归为第一格" },
+      { id: "d", text: "证明共相独立存在于个别事物之外" },
+    ],
+    correctOptionIds: ["a"],
+    explanation: "指代理论区分实质指代与形式指代、单称与普遍指代：“人是物种”与“苏格拉底是人”中“人”替不同的对象说话，混淆两者就产生似是而非的三段论——它是中世纪的谬误检测器。b 属于语法教学，c 是亚里士多德传统的化归技术，d 是共相争论本身，都不是指代学说的任务。",
   },
 ];
 

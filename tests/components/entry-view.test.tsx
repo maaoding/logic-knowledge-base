@@ -41,15 +41,16 @@ describe("entry view", () => {
   });
 
   it("marks non-core entries as extended topics without breaking missing optional blocks", () => {
-    const entry = entryBySlug("mohist-logic");
+    // many-valued-logic 是当前唯一不属于任何学习路径的条目
+    const entry = entryBySlug("many-valued-logic");
     const { container } = render(<EntryView entry={entry} />);
 
     expect(screen.getByText("专题延伸条目")).toBeTruthy();
     expect(container.textContent).toContain("本条目属于专题延伸");
     // 面包屑回到所属分支（同名链接在侧栏「所属分支」还有一处，需限定范围）
     const breadcrumbs = screen.getByRole("navigation", { name: "面包屑" });
-    expect(within(breadcrumbs).getByRole("link", { name: "逻辑学史" })).toBeTruthy();
-    // 历史条目不属于任何学习路径，不应出现所属路径行
+    expect(within(breadcrumbs).getByRole("link", { name: "哲学逻辑" })).toBeTruthy();
+    // 该条目不属于任何学习路径，不应出现所属路径行
     expect(screen.queryByText(/所属路径/)).toBeNull();
   });
 });

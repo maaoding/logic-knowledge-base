@@ -27,7 +27,7 @@ test("server-renders the finished homepage", async () => {
   assert.match(html, /<title>逻辑学知识库<\/title>/i);
   assert.match(html, /为零基础读者展开一张逻辑地图/);
   assert.match(html, /学科地图/);
-  assert.match(html, /40(?:\s|<!-- -->)*个知识条目/);
+  assert.match(html, /44(?:\s|<!-- -->)*个知识条目/);
   assert.match(html, /进入分支练习站/);
   assert.match(html, /搜索逻辑学知识/);
   assert.match(html, /property="og:image" content="http:\/\/localhost:3000\/og.png"/);
@@ -42,8 +42,8 @@ test("serves a complete sitemap and project-managed robots rules", async () => {
 
   const sitemapXml = await sitemapResponse.text();
   const urls = [...sitemapXml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1]);
-  assert.equal(urls.length, 62);
-  assert.equal(new Set(urls).size, 62);
+  assert.equal(urls.length, 68);
+  assert.equal(new Set(urls).size, 68);
   for (const url of [
     "http://localhost:3000/",
     "http://localhost:3000/branches/foundations",
@@ -102,7 +102,7 @@ test("publishes favicon and Apple touch icon metadata with valid assets", async 
   assert.deepEqual(icoSizes, [[16, 16], [32, 32], [48, 48]]);
 });
 
-test("renders all branches, all 40 entry routes, and all learning paths", async () => {
+test("renders all branches, all 44 entry routes, and all learning paths", async () => {
   const branchIds = [
     "foundations", "traditional", "propositional", "predicate", "modal",
     "inductive", "informal", "mathematical", "philosophical", "history",
@@ -120,7 +120,7 @@ test("renders all branches, all 40 entry routes, and all learning paths", async 
     }
   }
 
-  assert.equal(entryRoutes.size, 40);
+  assert.equal(entryRoutes.size, 44);
   for (const route of entryRoutes) {
     const response = await render(route);
     assert.equal(response.status, 200, route);
@@ -130,6 +130,7 @@ test("renders all branches, all 40 entry routes, and all learning paths", async 
     "/start", "/paths", "/paths/argument-to-validity",
     "/paths/proposition-to-quantifier", "/paths/induction-and-real-arguments",
     "/paths/real-arguments-and-fallacies",
+    "/paths/formal-systems-tour", "/paths/logic-across-civilizations",
   ];
   for (const route of otherRoutes) {
     const response = await render(route);
