@@ -32,7 +32,21 @@ test("server-renders the finished homepage", async () => {
   assert.match(html, /搜索逻辑学知识/);
   assert.match(html, /property="og:image" content="http:\/\/localhost:3000\/og.png"/);
   assert.match(html, /name="twitter:card" content="summary_large_image"/);
+  // 首页 canonical 指向站点根（metadataBase 已就绪）
+  assert.match(html, /<link rel="canonical" href="http:\/\/localhost:3000"\/?>/);
+  assert.match(html, /逻辑史条目/);
+  assert.doesNotMatch(html, /逻辑史传统/);
   assert.doesNotMatch(html, /结构原型|样例内容|codex-preview|Your site is taking shape|react-loading-skeleton/i);
+});
+
+test("sets canonical links on reference pages", async () => {
+  const pages = ["/glossary", "/comparisons", "/cases", "/resources", "/start", "/paths"];
+  for (const page of pages) {
+    const response = await render(page);
+    assert.equal(response.status, 200);
+    const html = await response.text();
+    assert.match(html, new RegExp(`<link rel="canonical" href="http://localhost:3000${page}"/?>`));
+  }
 });
 
 test("serves a complete sitemap and project-managed robots rules", async () => {
@@ -144,6 +158,22 @@ test("renders all branches, all 44 entry routes, and all learning paths", async 
   assert.match(formulaHtml, /去练习站检验本分支/);
   // 详情页社交卡也携带默认 og 图（textOnlyDetailMetadata 显式引用 /og.png）
   assert.match(formulaHtml, /property="og:image" content="http:\/\/localhost:3000\/og.png"/);
+  // 详情页 canonical 指向本页路径
+  assert.match(formulaHtml, /<link rel="canonical" href="http:\/\/localhost:3000\/concepts\/quantifiers"\/?>/);
+});
+
+test("derives the homepage history stat from the history entries", async () => {
+  const [homeResponse, historyResponse] = await Promise.all([render("/"), render("/branches/history")]);
+  const homeHtml = await homeResponse.text();
+  const historyHtml = await historyResponse.text();
+
+  const stated = Number(homeHtml.match(/<strong>(\d+)<\/strong><span>逻辑史条目<\/span>/)?.[1]);
+  assert.ok(Number.isInteger(stated) && stated > 0, "首页应渲染逻辑史条目计数");
+
+  const entryRoutes = new Set(
+    [...historyHtml.matchAll(/href="(\/history\/[^"?#]+)"/g)].map((match) => match[1]),
+  );
+  assert.equal(stated, entryRoutes.size, "首页逻辑史条目数应与历史分支的条目数一致");
 });
 
 test("returns the custom 404 for unknown knowledge routes", async () => {

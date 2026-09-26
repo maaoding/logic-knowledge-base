@@ -6,6 +6,7 @@ import { comparisonsIntro, conceptComparisons } from "../../lib/content/comparis
 export const metadata: Metadata = {
   title: "易混概念对照",
   description: "成对逻辑概念的共同点、关键差异与最易混淆的真实场景。",
+  alternates: { canonical: "/comparisons" },
 };
 
 const unknownSlugs = conceptComparisons.flatMap((comparison) =>

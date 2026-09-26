@@ -3,6 +3,7 @@ import { Fragment } from "react";
 import {
   entryPath,
   getBranch,
+  getCompanionGroupsForEntry,
   getPathMemberships,
   isCoreEntry,
   resolveEntries,
@@ -45,6 +46,7 @@ export function EntryView({ entry }: { entry: KnowledgeEntry }) {
   const related = resolveEntries(entry.relatedSlugs);
   const coreEntry = isCoreEntry(entry.slug);
   const pathMemberships = getPathMemberships(entry.slug);
+  const companionGroups = getCompanionGroupsForEntry(entry.slug);
 
   return (
     <main id="main-content" className="article-shell">
@@ -174,6 +176,26 @@ export function EntryView({ entry }: { entry: KnowledgeEntry }) {
 
           <EntryLinks title="前置知识" entries={prerequisites} />
           <EntryLinks title="关联条目" entries={related} />
+
+          {companionGroups.length ? (
+            <section className="article-companions" aria-labelledby="companions-title">
+              <p className="eyebrow">配套速查</p>
+              <h2 id="companions-title">读完正文后，回到对照、案例与术语</h2>
+              <div>
+                {companionGroups.map((group) => (
+                  <p className="companion-row" key={group.kind}>
+                    <span className="companion-kind">{group.kind}</span>
+                    {group.links.map((link, linkIndex) => (
+                      <Fragment key={link.href}>
+                        {linkIndex > 0 ? <span aria-hidden="true"> · </span> : null}
+                        <Link href={link.href}>{link.label}</Link>
+                      </Fragment>
+                    ))}
+                  </p>
+                ))}
+              </div>
+            </section>
+          ) : null}
         </article>
 
         <aside className="article-aside" aria-label="条目信息">

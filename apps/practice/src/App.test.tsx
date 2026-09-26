@@ -15,26 +15,27 @@ function selectOption(container: HTMLElement, optionId: string) {
   fireEvent.click(input);
 }
 
-function seedCompleteBranch(branchId: string) {
-  const questions = getQuestionsByBranch(branchId);
+// 当前存储格式：分支 → questionId → 记录（读取端仍兼容旧的按题目顺序数组格式）
+function seedStoredAnswers(branchId: string, answers: { questionId: string; selectedIds: string[]; correct: boolean }[]) {
   localStorage.setItem("logicPractice.progress", JSON.stringify({
-    [branchId]: questions.map((question) => ({
-      questionId: question.id,
-      selectedIds: [...question.correctOptionIds],
-      correct: true,
-    })),
+    [branchId]: Object.fromEntries(answers.map((answer) => [answer.questionId, answer])),
   }));
 }
 
+function seedCompleteBranch(branchId: string) {
+  seedStoredAnswers(branchId, getQuestionsByBranch(branchId).map((question) => ({
+    questionId: question.id,
+    selectedIds: [...question.correctOptionIds],
+    correct: true,
+  })));
+}
+
 function seedBranchWithWrongAt(branchId: string, wrongIndex: number) {
-  const questions = getQuestionsByBranch(branchId);
-  localStorage.setItem("logicPractice.progress", JSON.stringify({
-    [branchId]: questions.map((question, index) => ({
-      questionId: question.id,
-      selectedIds: index === wrongIndex ? ["b"] : [...question.correctOptionIds],
-      correct: index !== wrongIndex,
-    })),
-  }));
+  seedStoredAnswers(branchId, getQuestionsByBranch(branchId).map((question, index) => ({
+    questionId: question.id,
+    selectedIds: index === wrongIndex ? ["b"] : [...question.correctOptionIds],
+    correct: index !== wrongIndex,
+  })));
 }
 
 afterEach(() => cleanup());
@@ -62,13 +63,11 @@ describe("practice application", () => {
   it("shows per-branch progress state on branch cards", () => {
     const branch = branches[0];
     const questions = getQuestionsByBranch(branch.id);
-    localStorage.setItem("logicPractice.progress", JSON.stringify({
-      [branch.id]: questions.slice(0, 2).map((question) => ({
-        questionId: question.id,
-        selectedIds: [...question.correctOptionIds],
-        correct: true,
-      })),
-    }));
+    seedStoredAnswers(branch.id, questions.slice(0, 2).map((question) => ({
+      questionId: question.id,
+      selectedIds: [...question.correctOptionIds],
+      correct: true,
+    })));
     const { container, unmount } = render(<App />);
     // 进度概览列表也有同 href 链接，必须限定到分支卡
     const card = container.querySelector(`.branch-card[href="?branch=${branch.id}"]`);
@@ -180,13 +179,11 @@ describe("practice application", () => {
   it("keeps earlier informal progress when new questions are appended", () => {
     const questions = getQuestionsByBranch("informal");
     expect(questions).toHaveLength(9);
-    localStorage.setItem("logicPractice.progress", JSON.stringify({
-      informal: questions.slice(0, 5).map((question) => ({
-        questionId: question.id,
-        selectedIds: [...question.correctOptionIds],
-        correct: true,
-      })),
-    }));
+    seedStoredAnswers("informal", questions.slice(0, 5).map((question) => ({
+      questionId: question.id,
+      selectedIds: [...question.correctOptionIds],
+      correct: true,
+    })));
     setLocation("?branch=informal");
 
     const { container } = render(<App />);
@@ -195,18 +192,42 @@ describe("practice application", () => {
     expect(screen.getByText(questions[5].prompt)).toBeTruthy();
     expect(container.querySelector(".result-score")).toBeNull();
   });
+
+  it("counts each question once when replaying a branch from a non-prefix seed", () => {
+    const questions = getQuestionsByBranch("foundations");
+    // 非前缀种子：第 2、3 题已答（第 1 题未答），恢复时应定位到第 1 题
+    seedStoredAnswers("foundations", questions.slice(1, 3).map((question) => ({
+      questionId: question.id,
+      selectedIds: [...question.correctOptionIds],
+      correct: true,
+    })));
+    setLocation("?branch=foundations");
+
+    const { container } = render(<App />);
+    expect(container.querySelector(`div[aria-label="第 1 题，共 ${questions.length} 题"]`)).toBeTruthy();
+
+    // 依次重答全部题目，其中第 2、3 题此前已有记录
+    for (const [offset, question] of questions.entries()) {
+      for (const optionId of question.correctOptionIds) selectOption(container, optionId);
+      fireEvent.click(screen.getByRole("button", { name: "提交答案" }));
+      fireEvent.click(screen.getByRole("button", { name: offset === questions.length - 1 ? "查看本次结果" : "下一题" }));
+    }
+
+    expect(container.querySelector(".result-score")?.textContent).toMatch(/4\s*\/\s*4/);
+  });
 });
 
 describe("review and mastery overview", () => {
   it("summarizes per-branch states and wrong totals on the landing page", () => {
     seedCompleteBranch("foundations");
     const informal = getQuestionsByBranch("informal");
+    const foundationsProgress = JSON.parse(localStorage.getItem("logicPractice.progress")!).foundations;
     localStorage.setItem("logicPractice.progress", JSON.stringify({
-      foundations: JSON.parse(localStorage.getItem("logicPractice.progress")!).foundations,
-      informal: [
+      foundations: foundationsProgress,
+      informal: Object.fromEntries([
         { questionId: informal[0].id, selectedIds: ["b"], correct: false },
         { questionId: informal[1].id, selectedIds: [...informal[1].correctOptionIds], correct: true },
-      ],
+      ].map((answer) => [answer.questionId, answer])),
     }));
 
     const { container } = render(<App />);
@@ -240,7 +261,7 @@ describe("review and mastery overview", () => {
 
     // 原答题记录被覆盖为正确答案
     const stored = JSON.parse(localStorage.getItem("logicPractice.progress")!);
-    expect(stored.foundations[0]).toEqual({
+    expect(stored.foundations[questions[0].id]).toEqual({
       questionId: questions[0].id,
       selectedIds: [questions[0].correctOptionIds[0]],
       correct: true,
@@ -271,7 +292,7 @@ describe("review and mastery overview", () => {
 
     // 原记录保持不变
     const stored = JSON.parse(localStorage.getItem("logicPractice.progress")!);
-    expect(stored.foundations[0]).toEqual({ questionId: question.id, selectedIds: ["b"], correct: false });
+    expect(stored.foundations[question.id]).toEqual({ questionId: question.id, selectedIds: ["b"], correct: false });
   });
 
   it("explains the empty state when there is nothing to review", () => {
@@ -363,7 +384,7 @@ describe("submit-and-exit persistence", () => {
 
     // 原记录在提交时已被覆盖为正确
     const stored = JSON.parse(localStorage.getItem("logicPractice.progress")!);
-    expect(stored.foundations[0]).toEqual({
+    expect(stored.foundations[questions[0].id]).toEqual({
       questionId: questions[0].id,
       selectedIds: [...questions[0].correctOptionIds],
       correct: true,

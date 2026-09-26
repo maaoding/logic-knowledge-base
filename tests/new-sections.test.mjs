@@ -197,12 +197,43 @@ test("links each path step to companion comparisons, cases and glossary terms", 
   assert.equal(response.status, 200);
   const html = await response.text();
   assert.match(html, /配套速查/);
-  assert.match(html, /每个步骤的对照、案例与术语/);
+  assert.match(html, /对应上方步骤的对照、案例与术语/);
   assert.match(html, /href="\/comparisons#deduction-vs-induction"/);
   assert.match(html, /href="\/cases#app-review-claim"/);
   assert.match(html, /href="\/glossary#term-[^"]+"/);
   for (const kind of ["对照", "案例", "术语"]) {
     assert.match(html, new RegExp(`class="companion-kind">${kind}`), kind);
+  }
+});
+
+// 每个路径步骤都要有配套链接，且配套速查的编号与上方步骤列表一一对应（保留原始步骤号）
+test("numbers every path companion row like the step it belongs to", async () => {
+  const pathSlugs = [
+    "argument-to-validity",
+    "proposition-to-quantifier",
+    "induction-and-real-arguments",
+    "real-arguments-and-fallacies",
+    "formal-systems-tour",
+    "logic-across-civilizations",
+  ];
+  for (const pathSlug of pathSlugs) {
+    const response = await render(`/paths/${pathSlug}`);
+    assert.equal(response.status, 200, pathSlug);
+    const html = await response.text();
+
+    const stepList = html.match(/<ol class="path-steps">[\s\S]*?<\/ol>/);
+    assert.ok(stepList, `${pathSlug} 缺少步骤列表`);
+    const stepCount = (stepList[0].match(/class="step-number"/g) ?? []).length;
+    assert.ok(stepCount > 0, pathSlug);
+
+    const companions = html.match(/<section class="path-companions"[\s\S]*?<\/section>/);
+    assert.ok(companions, `${pathSlug} 缺少配套速查`);
+    const numbers = [...companions[0].matchAll(/<strong>(\d\d)/g)].map((match) => Number(match[1]));
+    assert.deepEqual(
+      numbers,
+      Array.from({ length: stepCount }, (_, index) => index + 1),
+      `${pathSlug} 的每一步都应至少有一个 companion，且编号回指上方步骤`,
+    );
   }
 });
 

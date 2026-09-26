@@ -1,8 +1,10 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { practiceQuestions } from "@logic/domain";
 import {
   branches,
   entryPath,
+  getEntriesByBranch,
   knowledgeEntries,
   learningPaths,
   referenceSections,
@@ -10,6 +12,12 @@ import {
 import { practiceSiteUrl } from "../lib/site-links";
 
 const groupOrder = ["起点", "形式逻辑", "推理与论证", "进阶逻辑", "多文明逻辑史"] as const;
+
+const historyEntryCount = getEntriesByBranch("history").length;
+
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
 
 export default function Home() {
   const featuredEntries = knowledgeEntries
@@ -54,7 +62,7 @@ export default function Home() {
         <Link href="#knowledge-map"><strong>{branches.length}</strong><span>学科分支</span></Link>
         <Link href="#recommended-entries"><strong>{knowledgeEntries.length}</strong><span>知识条目</span></Link>
         <Link href="/paths"><strong>{learningPaths.length}</strong><span>学习路径</span></Link>
-        <Link href="/branches/history"><strong>4</strong><span>逻辑史传统</span></Link>
+        <Link href="/branches/history"><strong>{historyEntryCount}</strong><span>逻辑史条目</span></Link>
       </nav>
 
       <section id="knowledge-map" className="home-section shell" aria-labelledby="map-title">

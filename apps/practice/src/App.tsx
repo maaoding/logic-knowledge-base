@@ -186,12 +186,17 @@ function AnswerFeedback({ question, correct }: { question: PracticeQuestion; cor
 function PracticeSession({ branch }: { branch: Branch }) {
   const questions = getQuestionsByBranch(branch.id);
   const initialAnswers = loadBranchProgress(branch.id, questions);
-  const [questionIndex, setQuestionIndex] = useState(initialAnswers.length);
+  // 已答记录按 questionId 对齐，恢复时定位第一道未答题，不假设作答必然是连续前缀
+  const firstUnansweredIndex = questions.findIndex(
+    (question) => !initialAnswers.some((answer) => answer.questionId === question.id),
+  );
+  const allAnswered = firstUnansweredIndex === -1;
+  const [questionIndex, setQuestionIndex] = useState(allAnswered ? 0 : firstUnansweredIndex);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [submitted, setSubmitted] = useState(false);
   const [answers, setAnswers] = useState<AnswerRecord[]>(initialAnswers);
   // 最后一题提交后先留在解析页，点“查看本次结果”才进入结果页；打开已完成分支时直接看结果
-  const [viewingResult, setViewingResult] = useState(initialAnswers.length === questions.length);
+  const [viewingResult, setViewingResult] = useState(allAnswered);
   const currentQuestion = questions[questionIndex];
   const complete = viewingResult;
 
@@ -212,7 +217,8 @@ function PracticeSession({ branch }: { branch: Branch }) {
       selectedIds: [...selectedIds],
       correct: isExactMatch(selectedIds, currentQuestion.correctOptionIds),
     };
-    const nextAnswers = [...answers, record];
+    // 同题重复提交时按 id 覆盖，避免恢复旧进度后结果页记录重复
+    const nextAnswers = [...answers.filter((item) => item.questionId !== record.questionId), record];
     saveBranchProgress(branch.id, nextAnswers);
     setAnswers(nextAnswers);
     setSubmitted(true);

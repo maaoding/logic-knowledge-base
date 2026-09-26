@@ -110,7 +110,7 @@ export const glossaryTerms: GlossaryTerm[] = [
     aliases: ["axiom"],
     definition:
       "形式系统中不加证明就被接受的出发点公式，与推理规则一起生成全部定理。不同系统选不同的公理，公理集的强弱决定系统能证明什么。",
-    seeAlso: ["proof-and-derivability", "hilbert-godel-metalogic"],
+    seeAlso: ["proof-and-derivability", "hilbert-godel-metalogic", "normal-modal-systems"],
   },
   {
     term: "归纳",
@@ -181,15 +181,6 @@ export const glossaryTerms: GlossaryTerm[] = [
     seeAlso: ["possible-worlds-semantics", "necessity-possibility"],
   },
   {
-    term: "可满足性",
-    aliases: ["satisfiability", "SAT"],
-    definition:
-      "存在至少一个解释使公式为真的性质。P∧¬P 不可满足，P∨¬P 恒可满足；命题逻辑里求一个成真赋值的问题就是可满足性问题。",
-    confusion:
-      "可满足不等于有效：有效要求所有解释下都真，可满足只要一个成真解释。对偶口诀：一个公式不可满足，当且仅当它的否定有效。",
-    seeAlso: ["truth-tables", "soundness-completeness"],
-  },
-  {
     term: "可靠性定理",
     aliases: ["soundness theorem"],
     definition:
@@ -197,6 +188,15 @@ export const glossaryTerms: GlossaryTerm[] = [
     confusion:
       "与单个论证的“健全性”分层：健全性评论证（形式有效加前提真），可靠性定理评系统（凡可证皆有效）。听到“可靠”二字，先问说的是论证还是系统。",
     seeAlso: ["soundness-completeness", "hilbert-godel-metalogic"],
+  },
+  {
+    term: "可满足性",
+    aliases: ["satisfiability", "SAT"],
+    definition:
+      "存在至少一个解释使公式为真的性质。P∧¬P 不可满足，P∨¬P 恒可满足；命题逻辑里求一个成真赋值的问题就是可满足性问题。",
+    confusion:
+      "可满足不等于有效：有效要求所有解释下都真，可满足只要一个成真解释。对偶口诀：一个公式不可满足，当且仅当它的否定有效。",
+    seeAlso: ["truth-tables", "soundness-completeness"],
   },
   {
     term: "可能",
@@ -371,7 +371,7 @@ export const glossaryTerms: GlossaryTerm[] = [
       "由大前提、小前提与结论组成、恰好含三个词项的直言推理；中项在前提中连接大项与小项。有效性由格与式决定，可以用文氏图检验。",
     confusion:
       "结论听着顺不等于形式有效：“所有猫是动物；所有狗是动物；所以所有狗是猫”两前提皆真而结论为假，坏在中项“动物”两次都不周延。动手画文氏图，比背口诀可靠。",
-    seeAlso: ["categorical-syllogism", "venn-diagram-testing", "categorical-propositions"],
+    seeAlso: ["categorical-syllogism", "venn-diagram-testing", "categorical-propositions", "aristotle"],
   },
   {
     term: "实质蕴涵",
@@ -403,7 +403,7 @@ export const glossaryTerms: GlossaryTerm[] = [
     aliases: ["predicate"],
     definition:
       "带空位的性质或关系表达：一元谓词 F(x) 表示性质，二元谓词 L(x,y) 表示关系。谓词作用于论域中的对象，填满论元后才形成可判真假的公式。",
-    seeAlso: ["predicate-language", "quantifiers"],
+    seeAlso: ["predicate-language", "quantifiers", "frege"],
   },
   {
     term: "辖域",
@@ -498,7 +498,7 @@ export const glossaryTerms: GlossaryTerm[] = [
       "演绎论证的性质：不存在前提全真而结论为假的情形；只由形式决定，与前提的现实真假无关。有效保证的是“如果前提真，结论就不会假”。",
     confusion:
       "与健全性分工：健全等于有效加前提全真。也别拿“结论是真的”当有效证据——结论碰巧为真、前提与结论毫无支持的论证比比皆是，检验有效要抽形式找反模型。",
-    seeAlso: ["truth-validity-soundness", "deduction-and-induction"],
+    seeAlso: ["truth-validity-soundness", "deduction-and-induction", "medieval-logic"],
   },
   {
     term: "真值函数",

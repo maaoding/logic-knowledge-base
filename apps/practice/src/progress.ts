@@ -10,12 +10,41 @@ import { scoreAnswers, type AnswerRecord } from "./scoring";
 
 const PROGRESS_KEY = "logicPractice.progress";
 
-export function readStoredAnswers(): Record<string, AnswerRecord[]> {
+// 存储格式：分支 → questionId → 作答记录。按 id 建索引，题库增删或换序都不再使整表作废
+// 旧版本把记录按题目顺序存成数组，读取时按 questionId 转换
+type StoredBranchProgress = Record<string, AnswerRecord>;
+type StoredProgress = Record<string, StoredBranchProgress>;
+
+function parseAnswerRecord(value: unknown): AnswerRecord | null {
+  if (!value || typeof value !== "object") return null;
+  const record = value as Partial<AnswerRecord>;
+  if (typeof record.questionId !== "string") return null;
+  if (!Array.isArray(record.selectedIds) || !record.selectedIds.every((id) => typeof id === "string")) return null;
+  if (typeof record.correct !== "boolean") return null;
+  return { questionId: record.questionId, selectedIds: [...record.selectedIds], correct: record.correct };
+}
+
+function toStoredBranchProgress(value: unknown): StoredBranchProgress {
+  const progress: StoredBranchProgress = {};
+  const records = Array.isArray(value) ? value : Object.values(value && typeof value === "object" ? value : {});
+  for (const candidate of records) {
+    const record = parseAnswerRecord(candidate);
+    if (record) progress[record.questionId] = record;
+  }
+  return progress;
+}
+
+export function readStoredAnswers(): StoredProgress {
   try {
     const raw = localStorage.getItem(PROGRESS_KEY);
     if (!raw) return {};
     const parsed = JSON.parse(raw);
-    return parsed && typeof parsed === "object" ? parsed : {};
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return {};
+    const progress: StoredProgress = {};
+    for (const [branchId, value] of Object.entries(parsed)) {
+      progress[branchId] = toStoredBranchProgress(value);
+    }
+    return progress;
   } catch {
     return {};
   }
@@ -23,19 +52,25 @@ export function readStoredAnswers(): Record<string, AnswerRecord[]> {
 
 export function loadBranchProgress(branchId: string, questions: PracticeQuestion[]): AnswerRecord[] {
   const stored = readStoredAnswers()[branchId];
-  if (!Array.isArray(stored)) return [];
-  // 题库更新后旧记录的题目顺序可能失配，失配即整体作废
-  const matchesCurrentQuestions = stored.every(
-    (record, index) => record && record.questionId === questions[index]?.id,
-  );
-  return matchesCurrentQuestions && stored.length > 0 ? stored : [];
+  if (!stored) return [];
+  // 按当前题库的题目 id 逐题对齐，缺失（已下线）的题目直接跳过
+  return questions
+    .map((question) => stored[question.id])
+    .filter((record): record is AnswerRecord => Boolean(record));
 }
 
 export function saveBranchProgress(branchId: string, answers: AnswerRecord[]) {
   try {
     const all = readStoredAnswers();
-    if (answers.length === 0) delete all[branchId];
-    else all[branchId] = answers;
+    if (answers.length === 0) {
+      delete all[branchId];
+    } else {
+      const storedBranch: StoredBranchProgress = {};
+      for (const answer of answers) {
+        storedBranch[answer.questionId] = { ...answer, selectedIds: [...answer.selectedIds] };
+      }
+      all[branchId] = storedBranch;
+    }
     localStorage.setItem(PROGRESS_KEY, JSON.stringify(all));
   } catch {
     // 本地存储不可用（如隐私模式）时仅放弃持久化，答题流程不受影响
@@ -110,13 +145,14 @@ export function collectWrongAnswers(): WrongAnswerItem[] {
   const items: WrongAnswerItem[] = [];
   for (const branch of branches) {
     const questions = getQuestionsByBranch(branch.id);
+    const questionById = new Map(questions.map((question) => [question.id, question]));
     const answers = loadBranchProgress(branch.id, questions);
-    answers.forEach((record, index) => {
-      const question = questions[index];
-      if (!record.correct && question && question.id === record.questionId) {
+    for (const record of answers) {
+      const question = questionById.get(record.questionId);
+      if (!record.correct && question) {
         items.push({ branch, question });
       }
-    });
+    }
   }
   return items.sort((a, b) => {
     const pathA = pathEntryOrder.get(a.question.entrySlug);

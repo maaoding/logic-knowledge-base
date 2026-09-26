@@ -1684,6 +1684,18 @@ kbd {
   font-size: 0.8rem;
 }
 
+.article-companions {
+  margin-top: 44px;
+  padding-top: 32px;
+  border-top: 2px solid var(--rust);
+}
+
+.article-companions h2 {
+  margin: 6px 0 16px;
+  font-family: var(--font-serif);
+  font-size: 1.55rem;
+}
+
 .article-aside {
   position: sticky;
   top: 96px;

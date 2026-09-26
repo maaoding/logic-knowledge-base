@@ -5,6 +5,7 @@ import { branches, learningPaths, referenceSections } from "../../lib/catalog";
 export const metadata: Metadata = {
   title: "从这里开始",
   description: "零基础读者进入逻辑学知识库的使用说明与推荐起点。",
+  alternates: { canonical: "/start" },
 };
 
 export default function StartPage() {

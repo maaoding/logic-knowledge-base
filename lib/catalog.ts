@@ -121,6 +121,13 @@ export function getEntry(slug: string, kind?: EntryKind) {
   return entry && (!kind || entry.kind === kind) ? entry : undefined;
 }
 
+// 条目详情路由的 [kind] 段白名单：只接受条目种类，其余一律 404
+export const entryKinds: EntryKind[] = [...new Set(entryManifest.map((entry) => entry.kind))];
+
+export function resolveEntryKind(value: string): EntryKind | undefined {
+  return entryKinds.find((kind) => kind === value);
+}
+
 export function getEntriesByBranch(branchId: BranchId) {
   return knowledgeEntries.filter((entry) => entry.branchId === branchId);
 }

@@ -21,7 +21,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const branch = getBranch(slug);
-  return branch ? textOnlyDetailMetadata(branch.title, branch.summary) : {};
+  return branch ? textOnlyDetailMetadata(branch.title, branch.summary, `/branches/${branch.id}`) : {};
 }
 
 export default async function BranchPage({ params }: Props) {

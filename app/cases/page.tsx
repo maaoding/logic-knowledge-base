@@ -6,6 +6,7 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "论证分析案例",
   description: "用重构、形式检验与证据评估三种透镜轮流拆解真实感论证。",
+  alternates: { canonical: "/cases" },
 };
 
 const unknownSlugs = argumentCases.flatMap((argumentCase) =>

@@ -28,12 +28,36 @@ beforeEach(() => {
 });
 
 describe("branch progress validity", () => {
-  it("discards stored records whose order no longer matches the question bank", () => {
+  it("aligns stored records to the current question order by question id", () => {
+    const questions = getQuestionsByBranch("foundations");
+    // 旧格式：按题目顺序存储的数组；读取时按 questionId 对齐，不再因次序变化整体作废
+    localStorage.setItem("logicPractice.progress", JSON.stringify({
+      foundations: [
+        { questionId: questions[2].id, selectedIds: ["a"], correct: false },
+        { questionId: questions[0].id, selectedIds: ["b"], correct: true },
+      ],
+    }));
+    expect(loadBranchProgress("foundations", questions)).toEqual([
+      { questionId: questions[0].id, selectedIds: ["b"], correct: true },
+      { questionId: questions[2].id, selectedIds: ["a"], correct: false },
+    ]);
+  });
+
+  it("skips stored records whose question is missing from the current bank", () => {
     const questions = getQuestionsByBranch("foundations");
     localStorage.setItem("logicPractice.progress", JSON.stringify({
-      foundations: [{ questionId: questions[1].id, selectedIds: ["a"], correct: false }],
+      foundations: { ghost: { questionId: "ghost", selectedIds: [], correct: false } },
     }));
     expect(loadBranchProgress("foundations", questions)).toEqual([]);
+  });
+
+  it("stores answers keyed by question id", () => {
+    const questions = getQuestionsByBranch("foundations");
+    saveBranchProgress("foundations", [{ questionId: questions[1].id, selectedIds: ["a"], correct: false }]);
+    const stored = JSON.parse(localStorage.getItem("logicPractice.progress")!);
+    expect(stored.foundations).toEqual({
+      [questions[1].id]: { questionId: questions[1].id, selectedIds: ["a"], correct: false },
+    });
   });
 
   it("isolates corrupted or unknown keys from valid branches", () => {

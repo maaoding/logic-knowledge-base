@@ -40,6 +40,26 @@ describe("entry view", () => {
     }
   });
 
+  it("links the entry back to its companion comparisons, cases and terms", () => {
+    const entry = entryBySlug("truth-validity-soundness");
+    const { container } = render(<EntryView entry={entry} />);
+
+    const companions = container.querySelector(".article-companions");
+    expect(companions).toBeTruthy();
+    expect(companions?.querySelector('a[href="/comparisons#validity-vs-soundness"]')).toBeTruthy();
+    expect(companions?.querySelector('a[href="/comparisons#deductive-validity-vs-inductive-strength"]')).toBeTruthy();
+    expect(companions?.querySelectorAll('a[href^="/glossary#term-"]').length).toBeGreaterThan(0);
+    expect(companions?.textContent).toContain("术语");
+  });
+
+  it("omits the companion section when an entry has no comparison, case or term", () => {
+    // 用不在目录中的 slug 构造无配套条目：getCompanionGroupsForEntry 返回空数组
+    const entry = { ...entryBySlug("truth-validity-soundness"), slug: "fixture-without-companions" };
+    const { container } = render(<EntryView entry={entry} />);
+
+    expect(container.querySelector(".article-companions")).toBeNull();
+  });
+
   it("marks non-core entries as extended topics without breaking missing optional blocks", () => {
     // many-valued-logic 是当前唯一不属于任何学习路径的条目
     const entry = entryBySlug("many-valued-logic");

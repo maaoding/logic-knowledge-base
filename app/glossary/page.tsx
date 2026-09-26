@@ -6,6 +6,7 @@ import { glossaryIntro, glossaryTermId, glossaryTerms } from "../../lib/content/
 export const metadata: Metadata = {
   title: "术语表",
   description: "按拼音顺序排列的逻辑学常用术语速查，每条附易混提示与正文条目链接。",
+  alternates: { canonical: "/glossary" },
 };
 
 const unknownSlugs = glossaryTerms.flatMap((term) =>

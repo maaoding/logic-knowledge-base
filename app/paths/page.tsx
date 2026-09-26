@@ -5,6 +5,7 @@ import { getEntry, learningPaths } from "../../lib/catalog";
 export const metadata: Metadata = {
   title: "学习路径",
   description: `${learningPaths.length} 条面向不同学习目标的逻辑学入门路径。`,
+  alternates: { canonical: "/paths" },
 };
 
 export default function PathsPage() {

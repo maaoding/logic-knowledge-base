@@ -33,3 +33,35 @@ npm run test:all
 如需为社交预览生成绝对地址，可用 `NEXT_PUBLIC_SITE_URL` 指定主站的可信来源；本地默认使用 `http://localhost:3000/`。
 
 构建和测试使用 Node.js 22.13 或更高版本；仓库不包含账号、统计或服务器端持久化进度配置。
+
+## 部署
+
+线上发布由 `.github/workflows/pages.yml` 驱动。推送到 `main`（或手动 `workflow_dispatch`）后，GitHub Actions 在 Node.js 22 上执行 `npm ci`，用 `actions/configure-pages` 推导站点地址与 base path，再依次执行：
+
+1. `npm run build`：主站构建。`GITHUB_PAGES=true` 时 `next.config.ts` 切换为 `output: "export"`，并按 `GITHUB_PAGES_BASE_PATH` 设置 `basePath`。
+2. `npm run build:practice`：练习站 Vite 构建，输出 `apps/practice/dist`。这两步合起来等价于本地的 `npm run build:all`。
+3. `npm run prepare:pages`：把练习站复制到 `dist/client/practice`，把每个 HTML 路由生成为目录下的 `index.html`，写入 `.nojekyll`，必要时从构建产物补齐 `sitemap.xml` 与 `robots.txt`，并校验产物内所有站内链接可解析。
+4. `actions/upload-pages-artifact` 上传 `dist/client`，随后 `actions/deploy-pages` 发布。
+
+构建期环境变量（workflow 自动注入，本地复现时手动设置）：
+
+- `NEXT_PUBLIC_SITE_URL`：主站可信来源，决定 `metadataBase` 以及 canonical、sitemap 的绝对地址。
+- `NEXT_PUBLIC_PRACTICE_SITE_URL`：练习站对外地址，主站上的练习入口使用。
+- `VITE_KNOWLEDGE_BASE_URL`：练习站回链主站的地址。
+- `GITHUB_PAGES_BASE_PATH`：Pages 的 base path，须为空，或以单个 `/` 开头且不带尾斜杠。
+- `GITHUB_PAGES`：设为 `true` 时主站切换为静态导出模式。
+
+本地复现同样的 Pages 产物（PowerShell，示例假定站点位于域名根）：
+
+```powershell
+$env:GITHUB_PAGES = "true"
+$env:GITHUB_PAGES_BASE_PATH = ""
+$env:NEXT_PUBLIC_SITE_URL = "http://localhost:3000/"
+$env:NEXT_PUBLIC_PRACTICE_SITE_URL = "http://localhost:3000/practice/"
+npm run build
+$env:VITE_KNOWLEDGE_BASE_URL = "http://localhost:3000/"
+npm run build:practice
+npm run prepare:pages
+```
+
+产物位于 `dist/client`（已在 `.gitignore` 中忽略）。仓库里的 `worker/index.ts` 与根 `vite.config.ts` 的 Cloudflare 插件是另一套构建目标，供 `npm run dev` 等本地开发使用；上述 Pages workflow 上传的是 `dist/client` 静态产物，不会用到它。

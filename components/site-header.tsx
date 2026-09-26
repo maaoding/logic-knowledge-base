@@ -5,7 +5,13 @@ import { useEffect, useRef, useState } from "react";
 import { SearchDialog } from "./search-dialog";
 
 const navGroups = [
-  { label: "入门", href: "/start" },
+  {
+    label: "入门",
+    items: [
+      ["逻辑基础", "/branches/foundations"],
+      ["零基础起点", "/start"],
+    ],
+  },
   {
     label: "形式逻辑",
     items: [

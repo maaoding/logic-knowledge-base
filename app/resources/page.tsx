@@ -4,6 +4,7 @@ import { resourceGroupId, resourceGroups, resourcesIntro } from "../../lib/conte
 export const metadata: Metadata = {
   title: "学习资源",
   description: "按用途分组的外部逻辑学学习资源，附使用建议与注意事项。",
+  alternates: { canonical: "/resources" },
 };
 
 export default function ResourcesPage() {

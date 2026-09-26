@@ -51,6 +51,17 @@ describe("site header", () => {
     expect(dialogOpen()).toBe(false);
   });
 
+  it("lists the foundations branch under the 入门 group", () => {
+    renderHeader();
+
+    const intro = screen.getByRole("button", { name: "入门" });
+    expect(intro.getAttribute("aria-expanded")).toBe("false");
+    fireEvent.click(intro);
+    expect(intro.getAttribute("aria-expanded")).toBe("true");
+    expect(screen.getByRole("link", { name: "逻辑基础" }).getAttribute("href")).toBe("/branches/foundations");
+    expect(screen.getByRole("link", { name: "零基础起点" }).getAttribute("href")).toBe("/start");
+  });
+
   it("opens search with the slash shortcut and closes it with Escape inside the dialog", () => {
     renderHeader();
     // 键盘事件派发到 body：window 上的监听能收到，且 target 有 .matches 方法

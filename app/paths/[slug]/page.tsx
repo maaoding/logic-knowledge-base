@@ -23,7 +23,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const path = getLearningPath(slug);
-  return path ? textOnlyDetailMetadata(path.title, path.summary) : {};
+  return path ? textOnlyDetailMetadata(path.title, path.summary, `/paths/${path.slug}`) : {};
 }
 
 export default async function LearningPathPage({ params }: Props) {
@@ -31,12 +31,15 @@ export default async function LearningPathPage({ params }: Props) {
   const path = getLearningPath(slug);
   if (!path) notFound();
 
+  // 保留原始步骤号：配套速查按步骤号回指上方列表，不因过滤而重新编号
   const companionSteps = path.steps
-    .map((step) => {
+    .map((step, stepIndex) => {
       const entry = getEntry(step.entrySlug);
-      return entry ? { step, entry, groups: getCompanionGroupsForEntry(step.entrySlug) } : null;
+      if (!entry) return null;
+      const groups = getCompanionGroupsForEntry(step.entrySlug);
+      return groups.length > 0 ? { step, stepIndex, entry, groups } : null;
     })
-    .filter((item): item is NonNullable<typeof item> => item !== null && item.groups.length > 0);
+    .filter((item): item is NonNullable<typeof item> => item !== null);
   const pathBranchIds = getPathBranchIds(path);
 
   return (
@@ -82,13 +85,13 @@ export default async function LearningPathPage({ params }: Props) {
         <section className="path-companions" aria-labelledby="path-companions-title">
           <div>
             <p className="eyebrow">配套速查</p>
-            <h2 id="path-companions-title">每个步骤的对照、案例与术语</h2>
-            <p>学到某一步卡住时，先查易混对照和相关术语；想看这些工具如何用在完整论证上，再打开案例。</p>
+            <h2 id="path-companions-title">对应上方步骤的对照、案例与术语</h2>
+            <p>学到某一步卡住时，先查易混对照和相关术语；想看这些工具如何用在完整论证上，再打开案例。编号与上方步骤一致。</p>
           </div>
           <ul>
-            {companionSteps.map(({ step, entry, groups }, index) => (
+            {companionSteps.map(({ step, stepIndex, entry, groups }) => (
               <li key={step.entrySlug}>
-                <strong>{String(index + 1).padStart(2, "0")} · {entry.title}</strong>
+                <strong>{String(stepIndex + 1).padStart(2, "0")} · {entry.title}</strong>
                 {groups.map((group) => (
                   <p className="companion-row" key={group.kind}>
                     <span className="companion-kind">{group.kind}</span>
