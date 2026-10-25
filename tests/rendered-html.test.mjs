@@ -30,10 +30,12 @@ test("server-renders the finished homepage", async () => {
   assert.match(html, /44(?:\s|<!-- -->)*个知识条目/);
   assert.match(html, /进入分支练习站/);
   assert.match(html, /搜索逻辑学知识/);
-  assert.match(html, /property="og:image" content="http:\/\/localhost:3000\/og.png"/);
+  // 静态路由的 og:image 与 canonical 在构建期随 NEXT_PUBLIC_SITE_URL 烘焙（CI 为生产域名，
+  // 本地为 localhost），因此只断言路径语义，不锁定 origin
+  assert.match(html, /property="og:image" content="[^"]*\/og\.png"/);
   assert.match(html, /name="twitter:card" content="summary_large_image"/);
-  // 首页 canonical 指向站点根（metadataBase 已就绪）
-  assert.match(html, /<link rel="canonical" href="http:\/\/localhost:3000"\/?>/);
+  // 首页 canonical 指向站点根（仅 origin、无路径）
+  assert.match(html, /<link rel="canonical" href="https?:\/\/[^\/]+"\/?>/);
   assert.match(html, /逻辑史条目/);
   assert.doesNotMatch(html, /逻辑史传统/);
   assert.doesNotMatch(html, /结构原型|样例内容|codex-preview|Your site is taking shape|react-loading-skeleton/i);
@@ -45,7 +47,7 @@ test("sets canonical links on reference pages", async () => {
     const response = await render(page);
     assert.equal(response.status, 200);
     const html = await response.text();
-    assert.match(html, new RegExp(`<link rel="canonical" href="http://localhost:3000${page}"/?>`));
+    assert.match(html, new RegExp(`<link rel="canonical" href="[^"]*${page}"/?>`));
   }
 });
 
@@ -58,18 +60,27 @@ test("serves a complete sitemap and project-managed robots rules", async () => {
   const urls = [...sitemapXml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1]);
   assert.equal(urls.length, 68);
   assert.equal(new Set(urls).size, 68);
-  for (const url of [
-    "http://localhost:3000/",
-    "http://localhost:3000/branches/foundations",
-    "http://localhost:3000/concepts/argument-structure",
-    "http://localhost:3000/paths/argument-to-validity",
-    "http://localhost:3000/fallacies/straw-man",
-    "http://localhost:3000/paths/real-arguments-and-fallacies",
-    "http://localhost:3000/resources",
-    "http://localhost:3001/",
+  // origin 随构建 env 烘焙（CI 为生产域名、本地为 localhost），改为按 path 对齐，
+  // 站点 origin 取 sitemap 首个 URL（站点根），练习站入口应是唯一的不同 origin
+  const pathNames = urls.map((url) => new URL(url).pathname);
+  for (const path of [
+    "/",
+    "/branches/foundations",
+    "/concepts/argument-structure",
+    "/paths/argument-to-validity",
+    "/fallacies/straw-man",
+    "/paths/real-arguments-and-fallacies",
+    "/resources",
   ]) {
-    assert.ok(urls.includes(url), url);
+    assert.ok(pathNames.includes(path), path);
   }
+  const mainOrigin = new URL(urls[0]).origin;
+  // 练习站入口：本地默认是独立 origin（localhost:3001），生产部署在主站同域的 /practice/ 路径下
+  const practiceEntries = urls.filter((url) => {
+    const parsed = new URL(url);
+    return parsed.origin !== mainOrigin || parsed.pathname === "/practice/";
+  });
+  assert.equal(practiceEntries.length, 1);
   assert.doesNotMatch(sitemapXml, /<(?:lastmod|changefreq|priority)>/i);
 
   const robotsResponse = await render("/robots.txt");
@@ -77,7 +88,7 @@ test("serves a complete sitemap and project-managed robots rules", async () => {
   assert.match(robotsResponse.headers.get("content-type") ?? "", /^text\/plain\b/i);
   assert.equal(
     await robotsResponse.text(),
-    "User-Agent: *\nAllow: /\n\nSitemap: http://localhost:3000/sitemap.xml\n",
+    `User-Agent: *\nAllow: /\n\nSitemap: ${mainOrigin}/sitemap.xml\n`,
   );
 });
 
@@ -156,10 +167,10 @@ test("renders all branches, all 44 entry routes, and all learning paths", async 
   assert.match(formulaHtml, /katex-mathml/);
   assert.match(formulaHtml, /全称量词与存在量词/);
   assert.match(formulaHtml, /去练习站检验本分支/);
-  // 详情页社交卡也携带默认 og 图（textOnlyDetailMetadata 显式引用 /og.png）
-  assert.match(formulaHtml, /property="og:image" content="http:\/\/localhost:3000\/og.png"/);
-  // 详情页 canonical 指向本页路径
-  assert.match(formulaHtml, /<link rel="canonical" href="http:\/\/localhost:3000\/concepts\/quantifiers"\/?>/);
+  // 详情页社交卡也携带默认 og 图（textOnlyDetailMetadata 显式引用 /og.png）；canonical 指向本页路径。
+  // origin 同样不锁定：详情页在请求时用运行环境渲染，本地与 CI 的默认 origin 可能不同
+  assert.match(formulaHtml, /property="og:image" content="[^"]*\/og\.png"/);
+  assert.match(formulaHtml, /<link rel="canonical" href="[^"]*\/concepts\/quantifiers"\/?>/);
 });
 
 test("derives the homepage history stat from the history entries", async () => {
