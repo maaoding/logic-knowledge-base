@@ -35,7 +35,7 @@ test("server-renders the finished homepage", async () => {
   assert.match(html, /property="og:image" content="[^"]*\/og\.png"/);
   assert.match(html, /name="twitter:card" content="summary_large_image"/);
   // 首页 canonical 指向站点根（仅 origin、无路径）
-  assert.match(html, /<link rel="canonical" href="https?:\/\/[^\/]+"\/?>/);
+  assert.match(html, /<link rel="canonical" href="https?:\/\/[^/]+"\/?>/);
   assert.match(html, /逻辑史条目/);
   assert.doesNotMatch(html, /逻辑史传统/);
   assert.doesNotMatch(html, /结构原型|样例内容|codex-preview|Your site is taking shape|react-loading-skeleton/i);
