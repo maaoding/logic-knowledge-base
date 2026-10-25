@@ -40,7 +40,7 @@ export function SearchDialog({
   const optionRefs = useRef<(HTMLAnchorElement | null)[]>([]);
   const [query, setQuery] = useState("");
   const [activeIndex, setActiveIndex] = useState(-1);
-  // 索引记录不随页面下发：打开搜索后按需加载本地目录
+  // 索引记录不随页面下发：首次打开搜索时才加载本地目录
   const [entries, setEntries] = useState<SearchRecord[] | null>(null);
 
   function closeDialog() {
@@ -50,6 +50,7 @@ export function SearchDialog({
   }
 
   useEffect(() => {
+    if (!open) return;
     let active = true;
     import("../lib/search-data").then((mod) => {
       if (active) setEntries(mod.searchIndex);
@@ -57,7 +58,7 @@ export function SearchDialog({
     return () => {
       active = false;
     };
-  }, []);
+  }, [open]);
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -71,11 +72,11 @@ export function SearchDialog({
     }
   }, [open]);
 
-  const results = useMemo(() => {
+  const { results, totalMatches } = useMemo(() => {
     const normalizedQuery = normalize(query);
-    if (!normalizedQuery || !entries) return [];
+    if (!normalizedQuery || !entries) return { results: [], totalMatches: 0 };
 
-    return entries
+    const scored = entries
       .filter((entry) =>
         normalize(
           [entry.title, ...entry.aliases, entry.summary, ...entry.tags, entry.branch].join(" "),
@@ -92,9 +93,9 @@ export function SearchDialog({
               : 1;
         return { entry, score };
       })
-      .sort((a, b) => b.score - a.score)
-      .slice(0, 10)
-      .map((item) => item.entry);
+      .sort((a, b) => b.score - a.score);
+
+    return { results: scored.slice(0, 10).map((item) => item.entry), totalMatches: scored.length };
   }, [entries, query]);
 
   // 无直接结果时按字符对重叠度推荐相近内容，避免死胡同
@@ -195,7 +196,11 @@ export function SearchDialog({
         </label>
 
         <p className="sr-only" role="status" aria-live="polite">
-          {query ? (results.length ? `找到 ${results.length} 项结果` : "没有找到匹配结果") : ""}
+          {query
+            ? totalMatches
+              ? `找到 ${totalMatches} 项结果${totalMatches > results.length ? `，显示前 ${results.length} 条` : ""}`
+              : "没有找到匹配结果"
+            : ""}
         </p>
 
         <div className="search-results">
@@ -252,6 +257,11 @@ export function SearchDialog({
           ) : (
             <p className="search-empty">正在加载本地目录…</p>
           )}
+          {totalMatches > results.length ? (
+            <p className="search-empty">
+              共 {totalMatches} 项匹配，仅显示前 {results.length} 条；换更具体的关键词可缩小范围。
+            </p>
+          ) : null}
         </div>
       </div>
     </dialog>

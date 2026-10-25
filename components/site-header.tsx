@@ -90,7 +90,11 @@ export function SiteHeader({ searchCount, practiceUrl }: { searchCount: number; 
     const nextTheme = root.dataset.theme === "dark" ? "light" : "dark";
     root.dataset.theme = nextTheme;
     root.style.colorScheme = nextTheme;
-    localStorage.setItem("logic-theme", nextTheme);
+    try {
+      localStorage.setItem("logic-theme", nextTheme);
+    } catch {
+      // 存储被禁用时只放弃持久化，不影响本次会话切换
+    }
   }
 
   function closeMenu() {
