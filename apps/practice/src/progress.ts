@@ -8,7 +8,25 @@ import {
 } from "@logic/domain";
 import { scoreAnswers, type AnswerRecord } from "./scoring";
 
-const PROGRESS_KEY = "logicPractice.progress";
+// 导出给 App 的 storage 事件监听使用：其他标签页写入该键时重读进度
+export const PROGRESS_KEY = "logicPractice.progress";
+
+let storageProbeResult: boolean | null = null;
+
+// getItem 不抛不代表可写：隐私模式等场景往往在 setItem 才抛。一次性探测确定能否持久化
+export function isStorageAvailable(): boolean {
+  if (storageProbeResult === null) {
+    try {
+      const probeKey = `${PROGRESS_KEY}:probe`;
+      localStorage.setItem(probeKey, "1");
+      localStorage.removeItem(probeKey);
+      storageProbeResult = true;
+    } catch {
+      storageProbeResult = false;
+    }
+  }
+  return storageProbeResult;
+}
 
 // 存储格式：分支 → questionId → 作答记录。按 id 建索引，题库增删或换序都不再使整表作废
 // 旧版本把记录按题目顺序存成数组，读取时按 questionId 转换
@@ -59,7 +77,8 @@ export function loadBranchProgress(branchId: string, questions: PracticeQuestion
     .filter((record): record is AnswerRecord => Boolean(record));
 }
 
-export function saveBranchProgress(branchId: string, answers: AnswerRecord[]) {
+// 返回是否真的写入，供调用方在存储被禁时如实反馈
+export function saveBranchProgress(branchId: string, answers: AnswerRecord[]): boolean {
   try {
     const all = readStoredAnswers();
     if (answers.length === 0) {
@@ -72,8 +91,10 @@ export function saveBranchProgress(branchId: string, answers: AnswerRecord[]) {
       all[branchId] = storedBranch;
     }
     localStorage.setItem(PROGRESS_KEY, JSON.stringify(all));
+    return true;
   } catch {
-    // 本地存储不可用（如隐私模式）时仅放弃持久化，答题流程不受影响
+    // 本地存储不可用（如隐私模式）时仅放弃持久化，答题流程不受影响；由界面横幅提示
+    return false;
   }
 }
 
@@ -164,7 +185,7 @@ export function collectWrongAnswers(): WrongAnswerItem[] {
   });
 }
 
-// 复习答对后覆盖该题的原始记录为正确答案；返回是否真的写入（记录已不存在时保持不动并返回 false）
+// 复习答对后覆盖该题的原始记录为正确答案；返回是否真的写入（记录已不存在或存储被禁时不计入“已消除”）
 export function overrideWrongAnswer(item: WrongAnswerItem, selectedIds: string[]): boolean {
   const questions = getQuestionsByBranch(item.branch.id);
   const answers = loadBranchProgress(item.branch.id, questions);
@@ -172,6 +193,5 @@ export function overrideWrongAnswer(item: WrongAnswerItem, selectedIds: string[]
   if (recordIndex === -1) return false;
   const nextAnswers = [...answers];
   nextAnswers[recordIndex] = { questionId: item.question.id, selectedIds: [...selectedIds], correct: true };
-  saveBranchProgress(item.branch.id, nextAnswers);
-  return true;
+  return saveBranchProgress(item.branch.id, nextAnswers);
 }

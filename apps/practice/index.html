@@ -17,7 +17,13 @@
     <title>逻辑学分支练习</title>
     <script>
       (() => {
-        const saved = localStorage.getItem("logicPractice.theme");
+        let saved;
+        try {
+          // 与主站共用 logic-theme；旧版练习站专用键作为迁移回退
+          saved = localStorage.getItem("logic-theme") ?? localStorage.getItem("logicPractice.theme");
+        } catch (_) {
+          // 存储被禁时按系统偏好兜底
+        }
         const theme = saved === "light" || saved === "dark"
           ? saved
           : matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";

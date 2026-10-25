@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import { getQuestionsByBranch } from "@logic/domain";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { buildProgressOverview, collectWrongAnswers, loadBranchProgress, overrideWrongAnswer, saveBranchProgress } from "./progress";
 
 function seedCompleteBranch(branchId: string) {
@@ -21,6 +21,23 @@ function markWrong(branchId: string, questionId: string) {
     record.questionId === questionId ? { ...record, selectedIds: ["b"], correct: false } : record,
   );
   saveBranchProgress(branchId, answers);
+}
+
+// vi.spyOn 拦不住 jsdom Storage 原型上的 setItem，这里整体替换全局 localStorage 模拟被禁用的存储
+function blockStorage() {
+  const original = globalThis.localStorage;
+  const blocked: Storage = {
+    get length() { return 0; },
+    clear() {},
+    getItem: () => null,
+    key: () => null,
+    removeItem() {},
+    setItem() { throw new DOMException("blocked", "SecurityError"); },
+  };
+  Object.defineProperty(globalThis, "localStorage", { value: blocked, configurable: true });
+  return () => {
+    Object.defineProperty(globalThis, "localStorage", { value: original, configurable: true });
+  };
 }
 
 beforeEach(() => {
@@ -146,5 +163,42 @@ describe("single record override", () => {
     const staleItem = { ...wrongItem! };
     expect(overrideWrongAnswer(staleItem, ["a"])).toBe(false);
     expect(loadBranchProgress("foundations", questions)).toEqual([]);
+  });
+
+  it("does not count an override when the write fails, and keeps the original record", () => {
+    const questions = getQuestionsByBranch("foundations");
+    seedCompleteBranch("foundations");
+    markWrong("foundations", questions[0].id);
+    const wrongItem = collectWrongAnswers()[0]!;
+
+    const restoreStorage = blockStorage();
+    try {
+      expect(overrideWrongAnswer(wrongItem, ["a"])).toBe(false);
+      expect(
+        saveBranchProgress("foundations", [{ questionId: questions[0].id, selectedIds: ["a"], correct: true }]),
+      ).toBe(false);
+    } finally {
+      restoreStorage();
+    }
+
+    // 写入恢复后，原错题记录应原样保留
+    const answers = loadBranchProgress("foundations", questions);
+    expect(answers[0]).toEqual({ questionId: questions[0].id, selectedIds: ["b"], correct: false });
+  });
+});
+
+describe("storage availability probe", () => {
+  it("reports unavailable when writing throws, so the UI can warn instead of failing silently", async () => {
+    const restoreStorage = blockStorage();
+    try {
+      // isStorageAvailable 的探测结果会被模块级缓存，用全新模块实例验证首次探测
+      vi.resetModules();
+      const { isStorageAvailable } = await import("./progress");
+      expect(isStorageAvailable()).toBe(false);
+      expect(isStorageAvailable()).toBe(false);
+    } finally {
+      restoreStorage();
+      vi.resetModules();
+    }
   });
 });

@@ -1,457 +1,16 @@
-import { branches, entryManifest, entryPath, getQuestionsByBranch, practiceQuestions, type Branch, type PracticeQuestion } from "@logic/domain";
+import { branches } from "@logic/domain";
 import { useEffect, useState } from "react";
-import {
-  buildProgressOverview,
-  collectWrongAnswers,
-  loadBranchProgress,
-  overrideWrongAnswer,
-  saveBranchProgress,
-  type BranchProgressSummary,
-  type ProgressOverview,
-  type WrongAnswerItem,
-} from "./progress";
-import { isExactMatch, scoreAnswers, type AnswerRecord } from "./scoring";
-
-type Theme = "light" | "dark";
-
-const knowledgeBaseOrigin = import.meta.env.VITE_KNOWLEDGE_BASE_URL ?? "http://localhost:3000/";
-
-function absoluteKnowledgeUrl(path = "/") {
-  return new URL(path.replace(/^\//, ""), knowledgeBaseOrigin.endsWith("/") ? knowledgeBaseOrigin : `${knowledgeBaseOrigin}/`).href;
-}
-
-function knowledgeUrlForQuestion(question: PracticeQuestion) {
-  const entry = entryManifest.find((candidate) => candidate.slug === question.entrySlug);
-  return entry ? absoluteKnowledgeUrl(entryPath(entry)) : absoluteKnowledgeUrl();
-}
-
-function answerText(question: PracticeQuestion, optionIds: string[]) {
-  return optionIds
-    .map((optionId) => {
-      const option = question.options.find((candidate) => candidate.id === optionId);
-      return option ? `${option.id.toUpperCase()}. ${option.text}` : optionId;
-    })
-    .join("；");
-}
-
-function ThemeButton({ theme, onToggle }: { theme: Theme; onToggle: () => void }) {
-  return (
-    <button className="theme-button" type="button" onClick={onToggle} aria-label={`切换为${theme === "light" ? "深色" : "浅色"}主题`}>
-      <span aria-hidden="true">{theme === "light" ? "◐" : "◑"}</span>
-      {theme === "light" ? "深色" : "浅色"}
-    </button>
-  );
-}
-
-function SiteHeader({ theme, onToggle }: { theme: Theme; onToggle: () => void }) {
-  return (
-    <header className="practice-header">
-      <div className="practice-shell header-inner">
-        <a className="practice-brand" href="./">
-          <strong>逻辑学分支练习</strong>
-          <small>按分支练习 · 即时解析</small>
-        </a>
-        <nav aria-label="站点操作">
-          <a href={absoluteKnowledgeUrl()}>返回逻辑学知识库</a>
-          <ThemeButton theme={theme} onToggle={onToggle} />
-        </nav>
-      </div>
-    </header>
-  );
-}
-
-function branchProgressLabel(summary: BranchProgressSummary) {
-  if (summary.state === "not-started") return "未开始";
-  if (summary.state === "in-progress") return `进行中 · 已答 ${summary.answered}/${summary.questionTotal}`;
-  return `已完成 · 得分 ${summary.score}/${summary.questionTotal}`;
-}
-
-function ProgressOverviewSection({ overview }: { overview: ProgressOverview }) {
-  return (
-    <section aria-labelledby="progress-title" className="progress-section">
-      <div className="section-heading">
-        <div><p className="eyebrow">本地进度</p><h2 id="progress-title">学习进度</h2></div>
-        <span>已完成 {overview.completedBranches} / {branches.length} 个分支 · 待复习 {overview.wrongTotal} 道错题</span>
-      </div>
-      {overview.wrongTotal > 0 ? (
-        <a className="review-cta" href="?review=wrong">复习 {overview.wrongTotal} 道错题</a>
-      ) : (
-        <p className="review-calm">暂无待复习的错题，答错的题目会自动汇集到这里。</p>
-      )}
-      <ul className="branch-progress-list">
-        {overview.branchSummaries.map((summary) => (
-          <li key={summary.branch.id}>
-            <a href={`?branch=${summary.branch.id}`}>
-              <strong>{summary.branch.title}</strong>
-              <span className={`branch-progress-state is-${summary.state}`}>{branchProgressLabel(summary)}</span>
-            </a>
-          </li>
-        ))}
-      </ul>
-    </section>
-  );
-}
-
-function Landing({ invalidBranch }: { invalidBranch?: string }) {
-  const overview = buildProgressOverview();
-  const summaryByBranch = new Map(overview.branchSummaries.map((summary) => [summary.branch.id, summary]));
-  return (
-    <main id="main-content" className="practice-shell landing-main">
-      <header className="landing-intro">
-        <p className="eyebrow">按分支自由练习</p>
-        <h1>选一个分支，检验你的理解</h1>
-        <p>每题提交后立即显示答案、解释和对应知识条目。答题进度保存在此浏览器本地，切换分支或稍后回来都能继续。</p>
-      </header>
-
-      {invalidBranch ? (
-        <p className="invalid-notice" role="alert">没有名为“{invalidBranch}”的练习分支，已返回全部分支。</p>
-      ) : null}
-
-      <ProgressOverviewSection overview={overview} />
-
-      <section aria-labelledby="branch-list-title">
-        <div className="section-heading">
-          <div><p className="eyebrow">十个入口</p><h2 id="branch-list-title">从正在学习的部分开始</h2></div>
-          <span>共 {practiceQuestions.length} 题</span>
-        </div>
-        <div className="branch-grid">
-          {branches.map((branch) => {
-            const summary = summaryByBranch.get(branch.id);
-            return (
-              <a href={`?branch=${branch.id}`} className="branch-card" key={branch.id}>
-                <span className="branch-symbol">{branch.symbol}</span>
-                <div>
-                  <small>{branch.group} · {branch.level}</small>
-                  <h3>{branch.title}</h3>
-                  <p>{branch.summary}</p>
-                </div>
-                <div className="branch-card-meta">
-                  <strong>{getQuestionsByBranch(branch.id).length} 题</strong>
-                  {summary && summary.state !== "not-started" ? (
-                    <small className={`branch-card-progress is-${summary.state}`}>{branchProgressLabel(summary)}</small>
-                  ) : null}
-                </div>
-              </a>
-            );
-          })}
-        </div>
-      </section>
-    </main>
-  );
-}
-
-function QuestionOptions({ question, selectedIds, submitted, onChange }: {
-  question: PracticeQuestion;
-  selectedIds: string[];
-  submitted: boolean;
-  onChange: (optionId: string, checked: boolean) => void;
-}) {
-  const inputType = question.kind === "single" ? "radio" : "checkbox";
-  return (
-    <div className="option-list">
-      {question.options.map((option) => {
-        const selected = selectedIds.includes(option.id);
-        const correct = question.correctOptionIds.includes(option.id);
-        const stateClass = submitted && correct ? " is-correct" : submitted && selected ? " is-wrong" : "";
-        return (
-          <label className={`option-row${selected ? " is-selected" : ""}${stateClass}`} key={option.id}>
-            <input
-              type={inputType}
-              name={question.id}
-              value={option.id}
-              checked={selected}
-              disabled={submitted}
-              onChange={(event) => onChange(option.id, event.target.checked)}
-            />
-            <span className="option-marker" aria-hidden="true">{option.id.toUpperCase()}</span>
-            <span>{option.text}</span>
-          </label>
-        );
-      })}
-    </div>
-  );
-}
-
-function AnswerFeedback({ question, correct }: { question: PracticeQuestion; correct: boolean }) {
-  return (
-    <div className={`answer-feedback ${correct ? "is-correct" : "is-wrong"}`} role="status" aria-live="polite" data-answer-state={correct ? "correct" : "wrong"}>
-      <strong>{correct ? "回答正确" : "还差一步"}</strong>
-      <p className="correct-answer"><strong>正确答案：</strong>{answerText(question, question.correctOptionIds)}</p>
-      <p>{question.explanation}</p>
-      <a href={knowledgeUrlForQuestion(question)}>回知识库阅读对应条目</a>
-    </div>
-  );
-}
-
-function PracticeSession({ branch }: { branch: Branch }) {
-  const questions = getQuestionsByBranch(branch.id);
-  const initialAnswers = loadBranchProgress(branch.id, questions);
-  // 已答记录按 questionId 对齐，恢复时定位第一道未答题，不假设作答必然是连续前缀
-  const firstUnansweredIndex = questions.findIndex(
-    (question) => !initialAnswers.some((answer) => answer.questionId === question.id),
-  );
-  const allAnswered = firstUnansweredIndex === -1;
-  const [questionIndex, setQuestionIndex] = useState(allAnswered ? 0 : firstUnansweredIndex);
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [submitted, setSubmitted] = useState(false);
-  const [answers, setAnswers] = useState<AnswerRecord[]>(initialAnswers);
-  // 最后一题提交后先留在解析页，点“查看本次结果”才进入结果页；打开已完成分支时直接看结果
-  const [viewingResult, setViewingResult] = useState(allAnswered);
-  const currentQuestion = questions[questionIndex];
-  const complete = viewingResult;
-
-  function changeSelection(optionId: string, checked: boolean) {
-    if (submitted) return;
-    if (currentQuestion.kind === "single") {
-      setSelectedIds(checked ? [optionId] : []);
-      return;
-    }
-    setSelectedIds((current) => checked ? [...current, optionId] : current.filter((id) => id !== optionId));
-  }
-
-  // 提交即保存：即使未点“下一题”就退出，本题结果也不丢失
-  function submitAnswer() {
-    if (submitted || selectedIds.length === 0) return;
-    const record: AnswerRecord = {
-      questionId: currentQuestion.id,
-      selectedIds: [...selectedIds],
-      correct: isExactMatch(selectedIds, currentQuestion.correctOptionIds),
-    };
-    // 同题重复提交时按 id 覆盖，避免恢复旧进度后结果页记录重复
-    const nextAnswers = [...answers.filter((item) => item.questionId !== record.questionId), record];
-    saveBranchProgress(branch.id, nextAnswers);
-    setAnswers(nextAnswers);
-    setSubmitted(true);
-  }
-
-  function moveNext() {
-    if (questionIndex === questions.length - 1) {
-      setViewingResult(true);
-      return;
-    }
-    setSelectedIds([]);
-    setSubmitted(false);
-    setQuestionIndex((current) => current + 1);
-  }
-
-  function restart() {
-    saveBranchProgress(branch.id, []);
-    setQuestionIndex(0);
-    setSelectedIds([]);
-    setSubmitted(false);
-    setViewingResult(false);
-    setAnswers([]);
-  }
-
-  if (complete) {
-    const score = scoreAnswers(answers);
-    // 与 landing 的进度概览同源：跨分支错题总数，点击进入错题复习
-    const wrongTotal = buildProgressOverview().wrongTotal;
-    return (
-      <main id="main-content" className="practice-shell session-main result-main">
-        <nav className="breadcrumbs" aria-label="面包屑"><a href="./">全部分支</a><span>/</span><span>{branch.title}</span></nav>
-        <header className="result-header">
-          <p className="eyebrow">本次练习完成</p>
-          <h1>{branch.title}</h1>
-          <p className="result-score"><strong>{score}</strong><span>/ {questions.length}</span></p>
-          <p>{score === questions.length ? "本组知识点都已掌握，可以继续下一个分支。" : "查看下面的解析与知识链接，再重新练习一次。"}</p>
-        </header>
-
-        <ol className="answer-review">
-          {questions.map((question, index) => {
-            const answer = answers.find((candidate) => candidate.questionId === question.id)!;
-            return (
-              <li key={question.id} className={answer.correct ? "review-correct" : "review-wrong"}>
-                <span>{String(index + 1).padStart(2, "0")}</span>
-                <div>
-                  <small>{answer.correct ? "回答正确" : "需要复习"}</small>
-                  <h2>{question.prompt}</h2>
-                  <p><strong>你的答案：</strong>{answerText(question, answer.selectedIds)}</p>
-                  <p><strong>正确答案：</strong>{answerText(question, question.correctOptionIds)}</p>
-                  <p>{question.explanation}</p>
-                  <a href={knowledgeUrlForQuestion(question)}>阅读对应知识条目</a>
-                </div>
-              </li>
-            );
-          })}
-        </ol>
-
-        <div className="result-actions">
-          {wrongTotal > 0 ? <a className="secondary-button" href="?review=wrong">复习 {wrongTotal} 道错题</a> : null}
-          <button className="primary-button" type="button" onClick={restart}>重新练习本分支</button>
-          <a className="secondary-button" href="./">选择其他分支</a>
-        </div>
-      </main>
-    );
-  }
-
-  const currentCorrect = submitted && isExactMatch(selectedIds, currentQuestion.correctOptionIds);
-  return (
-    <main id="main-content" className="practice-shell session-main">
-      <nav className="breadcrumbs" aria-label="面包屑"><a href="./">全部分支</a><span>/</span><span>{branch.title}</span></nav>
-
-      <header className="session-heading">
-        <div><p className="eyebrow">{branch.group}</p><h1>{branch.title}</h1></div>
-        <div className="progress-copy" aria-label={`第 ${questionIndex + 1} 题，共 ${questions.length} 题`}>
-          <strong>{String(questionIndex + 1).padStart(2, "0")}</strong><span>/ {String(questions.length).padStart(2, "0")}</span>
-        </div>
-      </header>
-      <div className="progress-track" aria-hidden="true"><span style={{ width: `${((questionIndex + 1) / questions.length) * 100}%` }} /></div>
-
-      <section className="question-panel" aria-labelledby="question-title">
-        <div className="question-meta">
-          <span>{currentQuestion.kind === "single" ? "单选题" : "多选题"}</span>
-          <span>{currentQuestion.kind === "multiple" ? "选择所有正确项" : "选择一个答案"}</span>
-        </div>
-        <fieldset>
-          <legend id="question-title">{currentQuestion.prompt}</legend>
-          <QuestionOptions question={currentQuestion} selectedIds={selectedIds} submitted={submitted} onChange={changeSelection} />
-        </fieldset>
-
-        {submitted ? <AnswerFeedback question={currentQuestion} correct={currentCorrect} /> : null}
-
-        <div className="question-actions">
-          {!submitted ? (
-            <button className="primary-button" type="button" disabled={selectedIds.length === 0} onClick={submitAnswer}>提交答案</button>
-          ) : (
-            <button className="primary-button" type="button" onClick={moveNext}>{questionIndex === questions.length - 1 ? "查看本次结果" : "下一题"}</button>
-          )}
-          <a href="./">退出并选择其他分支</a>
-        </div>
-      </section>
-    </main>
-  );
-}
-
-function ReviewSession() {
-  const [queue, setQueue] = useState<WrongAnswerItem[]>(() => collectWrongAnswers());
-  const [questionIndex, setQuestionIndex] = useState(0);
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [submitted, setSubmitted] = useState(false);
-  const [lastCorrect, setLastCorrect] = useState(false);
-  const [eliminatedCount, setEliminatedCount] = useState(0);
-
-  const finished = questionIndex >= queue.length;
-  const currentItem = finished ? undefined : queue[questionIndex];
-
-  function changeSelection(optionId: string, checked: boolean) {
-    if (submitted || !currentItem) return;
-    if (currentItem.question.kind === "single") {
-      setSelectedIds(checked ? [optionId] : []);
-      return;
-    }
-    setSelectedIds((current) => checked ? [...current, optionId] : current.filter((id) => id !== optionId));
-  }
-
-  // 答对立即覆盖原记录：即使未点“下一题”就退出，消除结果也不丢失；答错保留错题
-  function submitAnswer() {
-    if (!currentItem || submitted || selectedIds.length === 0) return;
-    const correct = isExactMatch(selectedIds, currentItem.question.correctOptionIds);
-    // 仅在原记录确实被覆盖时计数，避免“已消除”数字与存储脱节
-    if (correct && overrideWrongAnswer(currentItem, selectedIds)) {
-      setEliminatedCount((count) => count + 1);
-    }
-    setLastCorrect(correct);
-    setSubmitted(true);
-  }
-
-  function advance() {
-    if (!currentItem) return;
-    setSelectedIds([]);
-    setSubmitted(false);
-    setLastCorrect(false);
-    setQuestionIndex((index) => index + 1);
-  }
-
-  // 再复习一遍：重新汇集仍答错的题目，开新一轮
-  function restartRound() {
-    setQueue(collectWrongAnswers());
-    setQuestionIndex(0);
-    setSelectedIds([]);
-    setSubmitted(false);
-    setLastCorrect(false);
-    setEliminatedCount(0);
-  }
-
-  const breadcrumbs = (
-    <nav className="breadcrumbs" aria-label="面包屑"><a href="./">全部分支</a><span>/</span><span>错题复习</span></nav>
-  );
-
-  if (queue.length === 0) {
-    return (
-      <main id="main-content" className="practice-shell session-main">
-        {breadcrumbs}
-        <header className="review-empty">
-          <p className="eyebrow">错题复习</p>
-          <h1>当前没有待复习的错题</h1>
-          <p>各分支最近一次作答都已正确（或者还没有开始作答）。继续练习，答错的题目会自动汇集到这里。</p>
-          <div className="result-actions"><a className="primary-button" href="./">返回全部分支</a></div>
-        </header>
-      </main>
-    );
-  }
-
-  if (!currentItem) {
-    const pendingCount = queue.length - eliminatedCount;
-    return (
-      <main id="main-content" className="practice-shell session-main result-main">
-        {breadcrumbs}
-        <header className="result-header">
-          <p className="eyebrow">本轮复习完成</p>
-          <h1>错题复习</h1>
-          <div className="review-summary">
-            <p className="result-score"><strong>{eliminatedCount}</strong><span>道已消除</span></p>
-            <p className="result-score"><strong>{pendingCount}</strong><span>道仍待复习</span></p>
-          </div>
-          <p>{pendingCount === 0 ? "这些题目最近一次作答都已答对，原记录已更新为正确。" : "仍待复习的题目保留原记录，可以再来一轮。"}</p>
-        </header>
-        <div className="result-actions">
-          {pendingCount > 0 ? <button className="primary-button" type="button" onClick={restartRound}>再复习一遍</button> : null}
-          <a className="secondary-button" href="./">返回全部分支</a>
-        </div>
-      </main>
-    );
-  }
-
-  return (
-    <main id="main-content" className="practice-shell session-main">
-      {breadcrumbs}
-
-      <header className="session-heading">
-        <div><p className="eyebrow">跨分支薄弱点</p><h1>错题复习</h1></div>
-        <div className="progress-copy" aria-label={`第 ${questionIndex + 1} 题，共 ${queue.length} 题`}>
-          <strong>{String(questionIndex + 1).padStart(2, "0")}</strong><span>/ {String(queue.length).padStart(2, "0")}</span>
-        </div>
-      </header>
-      <div className="progress-track" aria-hidden="true"><span style={{ width: `${((questionIndex + 1) / queue.length) * 100}%` }} /></div>
-
-      <section className="question-panel" aria-labelledby="review-question-title">
-        <div className="question-meta">
-          <span>{currentItem.question.kind === "single" ? "单选题" : "多选题"}</span>
-          <span>来自分支：{currentItem.branch.title}</span>
-        </div>
-        <fieldset>
-          <legend id="review-question-title">{currentItem.question.prompt}</legend>
-          <QuestionOptions question={currentItem.question} selectedIds={selectedIds} submitted={submitted} onChange={changeSelection} />
-        </fieldset>
-
-        {submitted ? <AnswerFeedback question={currentItem.question} correct={lastCorrect} /> : null}
-
-        <div className="question-actions">
-          {!submitted ? (
-            <button className="primary-button" type="button" disabled={selectedIds.length === 0} onClick={submitAnswer}>提交答案</button>
-          ) : (
-            <button className="primary-button" type="button" onClick={advance}>{questionIndex === queue.length - 1 ? "查看复习结果" : "下一题"}</button>
-          )}
-          <a href="./">退出复习</a>
-        </div>
-      </section>
-    </main>
-  );
-}
+import { Landing } from "./Landing";
+import { PracticeSession } from "./PracticeSession";
+import { ReviewSession } from "./ReviewSession";
+import { SiteHeader, type Theme } from "./SiteHeader";
+import { absoluteKnowledgeUrl } from "./knowledge-links";
+import { isStorageAvailable, PROGRESS_KEY } from "./progress";
 
 export function App() {
   const [theme, setTheme] = useState<Theme>(() => document.documentElement.dataset.theme === "dark" ? "dark" : "light");
+  // 跨标签页同步：storage 事件只由其他标签页的写入触发，据此重挂当前视图以重读进度
+  const [progressVersion, setProgressVersion] = useState(0);
   const searchParams = new URLSearchParams(window.location.search);
   const branchParameter = searchParams.get("branch");
   const reviewParameter = searchParams.get("review");
@@ -461,7 +20,12 @@ export function App() {
     const nextTheme = theme === "light" ? "dark" : "light";
     setTheme(nextTheme);
     document.documentElement.dataset.theme = nextTheme;
-    localStorage.setItem("logicPractice.theme", nextTheme);
+    try {
+      // 与主站共用 logic-theme：同一域名下两站主题保持同步
+      localStorage.setItem("logic-theme", nextTheme);
+    } catch {
+      // 存储被禁时仅放弃持久化，本次会话内仍可切换
+    }
   }
 
   // 浏览器历史里区分分支与复习视图，不再一排同名标签
@@ -473,11 +37,35 @@ export function App() {
         : "逻辑学分支练习";
   }, [branch, reviewParameter]);
 
+  useEffect(() => {
+    function handleStorageChange(event: StorageEvent) {
+      // key 为 null 对应 localStorage.clear()
+      if (event.key === null || event.key === PROGRESS_KEY) {
+        setProgressVersion((version) => version + 1);
+      }
+    }
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
+
   return (
     <>
       <a className="skip-link" href="#main-content">跳到正文</a>
       <SiteHeader theme={theme} onToggle={toggleTheme} />
-      {reviewParameter === "wrong" ? <ReviewSession /> : branch ? <PracticeSession branch={branch} /> : <Landing invalidBranch={branchParameter ?? undefined} />}
+      {!isStorageAvailable() ? (
+        <div className="storage-warning" role="note">
+          <div className="practice-shell">
+            当前浏览器限制了本地存储，答题进度与主题偏好不会被保存，刷新后将回到未作答状态；本次会话内仍可正常答题与查看解析。
+          </div>
+        </div>
+      ) : null}
+      {reviewParameter === "wrong" ? (
+        <ReviewSession key={`review-${progressVersion}`} />
+      ) : branch ? (
+        <PracticeSession key={`${branch.id}-${progressVersion}`} branch={branch} />
+      ) : (
+        <Landing key={`landing-${progressVersion}`} invalidBranch={branchParameter ?? undefined} />
+      )}
       <footer className="practice-footer">
         <div className="practice-shell"><p>答题进度仅保存在此浏览器本地，不会上传或收集；点“重新练习本分支”或清除浏览器数据即可删除。</p><a href={absoluteKnowledgeUrl()}>逻辑学知识库</a></div>
       </footer>

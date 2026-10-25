@@ -167,6 +167,7 @@ describe("practice application", () => {
     const thirdRender = render(<App />);
     expect(thirdRender.container.querySelector(".result-score")).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "重新练习本分支" }));
+    fireEvent.click(screen.getByRole("button", { name: "确认清空并重新练习" }));
     thirdRender.unmount();
 
     // 重新练习已清空本地进度
@@ -214,6 +215,45 @@ describe("practice application", () => {
     }
 
     expect(container.querySelector(".result-score")?.textContent).toMatch(/4\s*\/\s*4/);
+  });
+
+  it("keeps the branch record when the restart confirmation is cancelled", () => {
+    const questions = getQuestionsByBranch("foundations");
+    seedCompleteBranch("foundations");
+    setLocation("?branch=foundations");
+    const session = render(<App />);
+
+    fireEvent.click(screen.getByRole("button", { name: "重新练习本分支" }));
+    fireEvent.click(screen.getByRole("button", { name: "取消" }));
+
+    // 取消后回到结果页，记录未被清空
+    expect(session.container.querySelector(".result-score")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "重新练习本分支" })).toBeTruthy();
+    const stored = JSON.parse(localStorage.getItem("logicPractice.progress")!);
+    expect(Object.keys(stored.foundations)).toHaveLength(questions.length);
+  });
+});
+
+describe("theme and cross-tab sync", () => {
+  it("persists the theme under the shared key so both sites stay in sync", () => {
+    render(<App />);
+    fireEvent.click(screen.getByRole("button", { name: "切换为深色主题" }));
+
+    expect(document.documentElement.dataset.theme).toBe("dark");
+    expect(localStorage.getItem("logic-theme")).toBe("dark");
+    expect(screen.getByRole("button", { name: "切换为浅色主题" })).toBeTruthy();
+  });
+
+  it("refreshes the overview when another tab updates progress", () => {
+    const { container } = render(<App />);
+    expect(container.textContent).toContain("已完成 0 / 10 个分支");
+
+    // 模拟另一标签页写入：直接改存储后派发 storage 事件（该事件不在写入方标签页触发）
+    seedCompleteBranch("foundations");
+    fireEvent(window, new StorageEvent("storage", { key: "logicPractice.progress" }));
+
+    expect(container.textContent).toContain("已完成 1 / 10 个分支");
+    expect(container.querySelector(".review-cta")).toBeNull();
   });
 });
 
@@ -322,6 +362,7 @@ describe("review and mastery overview", () => {
     setLocation("?branch=foundations");
     const session = render(<App />);
     fireEvent.click(screen.getByRole("button", { name: "重新练习本分支" }));
+    fireEvent.click(screen.getByRole("button", { name: "确认清空并重新练习" }));
     session.unmount();
 
     setLocation("");
