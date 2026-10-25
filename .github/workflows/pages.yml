@@ -49,6 +49,17 @@ jobs:
           GITHUB_PAGES: "true"
           VITE_KNOWLEDGE_BASE_URL: ${{ steps.pages.outputs.base_url }}/
 
+      - name: Lint and typecheck
+        run: |
+          npm run lint
+          npm run typecheck
+
+      - name: Run tests against built artifacts
+        run: |
+          npm run test:built
+          npm run test:practice
+          npm run test:components
+
       - name: Prepare Pages artifact
         run: npm run prepare:pages
         env:
