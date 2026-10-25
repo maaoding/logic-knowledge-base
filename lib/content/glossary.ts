@@ -221,7 +221,7 @@ export const glossaryTerms: GlossaryTerm[] = [
       "若存在算法，对任意公式都能在有限步内判定它是否属于某类（例如某系统的定理集），该类就叫可判定。命题逻辑可判定，一阶逻辑不可判定。",
     confusion:
       "与完全性区分：完全性说每个有效式都有证明，可判定性说还有一个保证停机的搜索程序；有证明存在不等于找得到。不完全性与不可判定性也是两个定理，引用时别捆在一起。",
-    seeAlso: ["hilbert-godel-metalogic", "godel-incompleteness", "soundness-completeness"],
+    seeAlso: ["computability", "hilbert-godel-metalogic", "godel-incompleteness", "soundness-completeness"],
   },
   {
     term: "肯定后件",
@@ -347,7 +347,7 @@ export const glossaryTerms: GlossaryTerm[] = [
     seeAlso: ["argument-structure", "argument-mapping"],
   },
   {
-    term: "丘奇-图灵论题",
+    term: "丘奇—图灵论题",
     aliases: ["Church-Turing thesis"],
     definition:
       "把直观的“机械可算”对齐到图灵机可算的论题。图灵机给出精确的数学定义，论题宣称一切有效方法都由它刻画；它是论题而非定理，无法在形式系统内部证明。",
@@ -474,15 +474,6 @@ export const glossaryTerms: GlossaryTerm[] = [
     seeAlso: ["enumerative-induction", "inductive-strength"],
   },
   {
-    term: "隐含前提",
-    aliases: ["implicit premise", "省略前提"],
-    definition:
-      "论证依赖但未明说的前提，通常是连接明示前提与结论的桥梁。把它补出来，论证是否可靠才检查得起来。",
-    confusion:
-      "与背景信息分工：只有承担支持作用的命题才进论证骨架。“排长队所以好吃”里“排长队说明受欢迎”是隐含前提，“这条街很长”只是背景。补隐含前提要忠实：作者本人得认账。",
-    seeAlso: ["argument-structure", "argument-mapping"],
-  },
-  {
     term: "一致性",
     aliases: ["consistency", "相容性"],
     definition:
@@ -490,6 +481,15 @@ export const glossaryTerms: GlossaryTerm[] = [
     confusion:
       "一致不等于真：一套彼此相容的说法可能整体为假。不一致的代价更大——由爆炸原理，经典系统里不一致的理论能“证明”任何结论，所以查一致性是评价的第一道闸。",
     seeAlso: ["soundness-completeness", "relevant-and-paraconsistent", "hilbert-godel-metalogic"],
+  },
+  {
+    term: "隐含前提",
+    aliases: ["implicit premise", "省略前提"],
+    definition:
+      "论证依赖但未明说的前提，通常是连接明示前提与结论的桥梁。把它补出来，论证是否可靠才检查得起来。",
+    confusion:
+      "与背景信息分工：只有承担支持作用的命题才进论证骨架。“排长队所以好吃”里“排长队说明受欢迎”是隐含前提，“这条街很长”只是背景。补隐含前提要忠实：作者本人得认账。",
+    seeAlso: ["argument-structure", "argument-mapping"],
   },
   {
     term: "有效性",

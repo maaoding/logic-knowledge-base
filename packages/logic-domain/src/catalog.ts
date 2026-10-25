@@ -55,7 +55,7 @@ export const entryManifest: EntryManifest[] = [
   { slug: "proof-and-derivability", kind: "concepts", branchId: "mathematical", title: "形式证明与可推导性", aliases: ["形式推导", "derivability", "proof"], summary: "形式证明是在明确公理和规则下构造的有限符号序列，可推导性记录这种语法关系。", tags: ["证明论", "可推导性", "形式系统"] },
   { slug: "soundness-completeness", kind: "concepts", branchId: "mathematical", title: "可靠性与完全性", aliases: ["健全性与完备性", "soundness and completeness"], summary: "可靠性保证可证明的式子在语义上成立；完全性保证语义后承能够被系统证明。", tags: ["证明论", "模型论", "元逻辑"] },
   { slug: "godel-incompleteness", kind: "concepts", branchId: "mathematical", title: "哥德尔不完全性定理", aliases: ["不完备性定理", "Gödel incompleteness"], summary: "足够强、有效公理化且一致的算术理论，不能在自身内部判定所有算术命题。", tags: ["哥德尔", "不完全性", "算术理论"] },
-  { slug: "computability", kind: "concepts", branchId: "mathematical", title: "可计算性与可判定性", aliases: ["可计算性", "停机问题", "computability", "decidability"], summary: "图灵机刻画“机械可算”的精确含义；停机问题不可判定，划出机器可解问题的边界。", tags: ["可计算性", "停机问题", "丘奇-图灵论题"] },
+  { slug: "computability", kind: "concepts", branchId: "mathematical", title: "可计算性与可判定性", aliases: ["可计算性", "停机问题", "computability", "decidability"], summary: "图灵机刻画“机械可算”的精确含义；停机问题不可判定，划出机器可解问题的边界。", tags: ["可计算性", "停机问题", "丘奇—图灵论题"] },
 
   { slug: "logical-consequence-pluralism", kind: "concepts", branchId: "philosophical", title: "逻辑后承与逻辑多元主义", aliases: ["逻辑多元论", "logical pluralism"], summary: "哲学逻辑追问结论由前提必然推出意味着什么，以及是否只有一种正确刻画。", tags: ["逻辑后承", "经典逻辑", "多元主义"] },
   { slug: "classical-and-intuitionistic", kind: "systems", branchId: "philosophical", title: "经典逻辑与直觉主义逻辑", aliases: ["直觉主义逻辑", "intuitionistic logic"], summary: "直觉主义逻辑把真与构造性证明联系起来，因而不普遍接受经典排中律和双重否定消去。", tags: ["经典逻辑", "直觉主义", "排中律"] },
